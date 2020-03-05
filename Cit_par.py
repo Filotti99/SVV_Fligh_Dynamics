@@ -1,3 +1,5 @@
+from math import sin, cos, pow, pi
+
 # Citation 550 - Linear simulation
 
 # xcg = 0.25 * c
@@ -45,7 +47,7 @@ R      = 287.05          # specific gas constant [m^2/sec^2K]
 g      = 9.81            # [m/sec^2] (gravity constant)
 
 # air density [kg/m^3]
-rho    = rho0 * power( ((1+(lam * hp0 / Temp0))), (-((g / (lam*R)) + 1)))
+rho    = rho0 * pow( ((1+(lam * hp0 / Temp0))), (-((g / (lam*R)) + 1)))
 W      = m * g            # [N]       (aircraft weight)
 
 # Constant values concerning aircraft inertia
