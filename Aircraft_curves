@@ -1,18 +1,31 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import inputs.py
+import inputs
 
 def drag_polar(measurement_matrix):
+    C_L_array = []
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
-        rho = 1.225 # change to ISA equation
-        W = 1000 # change to varying function
+        row[3] = row[3]*0.3048
+        row[4] = row[4]*0.514444
+        row[9] = row[9]+273.15
+        rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        W = 9165*0.453592*9.80665# change to varying function
+        C_L = W/(0.5*rho*row[4]**2*inputs.S)
+        C_L_array.append(C_L)
+        #C_D =
+    return C_L_array
 
-        C_L = W/(0.5*rho*row[4]**2*S)
-        C_D =
-    plt.show()
+print(drag_polar([[1,1917, 2000, 5010, 249, 1.7, 798, 813, 360, 12.5]]))
 
+def calc_constants():
+    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
+    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
+    e = CLalpha/Clalpha
+    return e
+
+print(calc_constants())
 
 def lift_curve(x_coords, y_coords):
     plt.plot(x_coords, y_coords)
