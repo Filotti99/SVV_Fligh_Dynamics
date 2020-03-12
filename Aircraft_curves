@@ -1,11 +1,24 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import inputs.py
 
-def drag_polar():
-    
+def drag_polar(measurement_matrix):
+    for row in measurement_matrix:
+        # nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
+        rho = 1.225 # change to ISA equation
+        W = 1000 # change to varying function
+
+        C_L = W/(0.5*rho*row[4]**2*S)
+        C_D =
+    plt.show()
 
 
-def lift_curve():
+def lift_curve(x_coords, y_coords):
+    plt.plot(x_coords, y_coords)
+    plt.show()
 
-def drag_curve():
+
+def drag_curve(x_coords, y_coords):
+    plt.plot(x_coords, y_coords)
+    plt.show()
