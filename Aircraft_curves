@@ -1,0 +1,11 @@
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+def drag_polar():
+    
+
+
+def lift_curve():
+
+def drag_curve():
