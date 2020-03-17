@@ -64,8 +64,8 @@ def drag_curve(measurement_matrix):
     plt.show()
 
 
-print(drag_polar(inputs.measurement_matrix))
-print(lift_curve(inputs.measurement_matrix))
-print(drag_curve(inputs.measurement_matrix))
-print(calc_M(inputs.measurement_matrix))
-print(calc_deltaT(inputs.measurement_matrix))
+print(drag_polar(inputs.measurement_matrix_real))
+print(lift_curve(inputs.measurement_matrix_real))
+print(drag_curve(inputs.measurement_matrix_real))
+print(calc_M(inputs.measurement_matrix_real))
+print(calc_deltaT(inputs.measurement_matrix_real))
