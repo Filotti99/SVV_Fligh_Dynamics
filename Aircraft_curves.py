@@ -27,7 +27,7 @@ def calc_deltaT(measurement_matrix):
 def calc_CL(measurement_matrix):
     C_L_array = []
     for row in measurement_matrix:
-        # nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
+        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
         rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
         W = 60500 # change to varying function
         C_L = W/(0.5*rho*row[4]**2*inputs.S)
@@ -39,8 +39,7 @@ def calc_CD(measurement_matrix):
     C_L_usage = calc_CL(measurement_matrix)
     counter = 0
     for row in measurement_matrix:
-        # nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
-        W = 60500 # change to varying function
+        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
         C_D = 0.04 + (C_L_usage[counter]**2)/(math.pi*inputs.AR*calc_e())
         C_D_array.append(C_D)
         counter += 1
