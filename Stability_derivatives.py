@@ -11,8 +11,9 @@ def get_Cm_delta():
     return Cm_delta
 
 def get_Cm_alpha():
-
-    Cm_alpha =
+    Cm_delta = get_Cm_delta()
+    d_delta_d_alpha = get_elevator_trim_slope()
+    Cm_alpha = -d_delta_d_alpha*Cm_delta
     return Cm_alpha
 
 def main():
