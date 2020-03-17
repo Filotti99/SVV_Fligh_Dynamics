@@ -17,7 +17,7 @@ R = 287.0
 gamma = 1.4
 
 # Static measurement matrix
-# nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
+# nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
 measurement_matrix = np.array([[1,30, 2000, 5010, 249, 1.7, 798, 813, 360, 12.5],[2,2137, 2000, 5020, 221, 2.4, 633, 682, 412, 10.5],[3,2436, 2000, 5020, 192, 3.6, 561, 579, 447, 8.8],[4,2604, 2000, 5030, 163, 5.4, 463, 484, 478, 7.2],[5,2947, 2000, 5020, 130, 8.7, 443, 467, 532, 6],[6,3200, 2000, 5110, 118, 10.6, 474, 499, 570, 5.2] ])
 for row in measurement_matrix:
     row[3] = row[3] * 0.3048
