@@ -11,8 +11,11 @@ def get_CL_alpha(input_matr):
     CL_alpha = (CL_list[-1]-CL_list[0])/(Alpha_list[-1]-Alpha_list[0])
     return CL_alpha
 
-def get_Cm_delta():
-
+def get_Cm_delta(input_matr):
+    CN_list = Aircraft_curves.calc_CL(input_matr) # C_N approximated as C_L
+    delta_e_list =
+    delta_xcg_list =
+    c_bar =
     Cm_delta = (-1/delta_e)*C_N*(delta_x_cg/c_bar)
     return Cm_delta
 
