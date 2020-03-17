@@ -22,23 +22,21 @@ def calc_CD_curve(measurement_matrix):
     CL_array = calc_CL(measurement_matrix)
     CD_array = []
     for i in range(len(measurement_matrix)):
-        rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
+        rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
     
-    slopes = []
+    e_list = []
     for i in range(len(D_array)-1):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
-        slopes.append(slope)
-    e = (np.average(slopes)*(math.pi*inputs.AR))**-1
+        e_list.append((slope*math.pi*inputs.AR)**-1)
+    e = np.average(e_list)
     
-    CD0s = []
+    CD0_list = []
     for i in range(len(CD_array)):
-        CD0s.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
-    CD0 = np.average(CD0s)
+        CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
+    CD0 = np.average(CD0_list)
     
-    return e,CD0
-
-
+    return e,es,CD0,CD0s,CD_array
 
 def calc_M(measurement_matrix):
     M_array = []
