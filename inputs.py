@@ -22,4 +22,7 @@ measurement_matrix = np.array([[1,30, 2000, 5010, 249, 1.7, 798, 813, 360, 12.5]
 for row in measurement_matrix:
     row[3] = row[3] * 0.3048
     row[4] = row[4] * 0.514444
+    row[6] = row[6] * (0.453592/3600)
+    row[7] = row[7] * (0.453592/3600)
+    row[8] = row[8] * 0.453592
     row[9] = row[9] + 273.15
