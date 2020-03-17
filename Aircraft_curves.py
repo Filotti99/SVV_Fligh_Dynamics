@@ -23,14 +23,13 @@ def calc_CD_curve(measurement_matrix):
     CD_array = []
     for i in range(len(measurement_matrix)):
         rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
-        CD = D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S)
-        CD_array.append(CD)
+        CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
     
     slopes = []
     for i in range(len(D_array)-1):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
         slopes.append(slope)
-    e = np.average(slopes)*(math.pi*inputs.AR)
+    e = (np.average(slopes)*(math.pi*inputs.AR))**-1
     
     CD0s = []
     for i in range(len(CD_array)):
