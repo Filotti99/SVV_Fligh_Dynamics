@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 17 14:37:11 2020
-
-@author: Zach
-"""
-
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,7 +40,6 @@ def calc_CD(measurement_matrix):
     counter = 0
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
-        rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
         W = 60500 # change to varying function
         C_D = 0.04 + (C_L_usage[counter]**2)/(math.pi*inputs.AR*calc_e())
         C_D_array.append(C_D)
@@ -66,12 +58,15 @@ def lift_curve(measurement_matrix):
     plt.plot(Alpha_array, C_L_array)
     plt.show()
 
-
-def drag_curve(x_coords, y_coords):
-    plt.plot(x_coords, y_coords)
+def drag_curve(measurement_matrix):
+    Alpha_array = [row[5] for row in measurement_matrix]
+    C_D_array = calc_CD(measurement_matrix)
+    plt.plot(Alpha_array, C_D_array)
     plt.show()
+
 
 print(drag_polar(inputs.measurement_matrix))
 print(lift_curve(inputs.measurement_matrix))
+print(drag_curve(inputs.measurement_matrix))
 print(calc_M(inputs.measurement_matrix))
 print(calc_deltaT(inputs.measurement_matrix))
