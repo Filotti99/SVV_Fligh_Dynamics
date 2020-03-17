@@ -27,6 +27,15 @@ m_oew = 2672953.5*inc*lbs*g
 x_cg = (sum(m_pass)+m_oew+m_fuel)/(w_fuel+sum(w_pass)+w_oew)
 
 def deltaCg(w_f1,w_f0, a = False):
+    '''
+    Inputs:
+     - w_f1 = fuel used at the second point
+     - w_f0 = fuel used at beginning of cg shift
+     - a    = if True, returns absolute value of shift in cg, otherwise it return positive or negative value accordingly
+
+     Outputs:
+      - The shift in cg, given in m
+    '''
     m_f0 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel-w_f0)
     m_f1 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel-w_f1)
     l_p0 = np.array([131,131,214,214,251,251,288,288,170])*inc
@@ -39,5 +48,5 @@ def deltaCg(w_f1,w_f0, a = False):
 
     return abs(x_cg1-x_cg0) if a else x_cg1-x_cg0
 
-
-#dCg = deltaCg(1650*lbs*g,1650*g*lbs, True)
+if __name__ == 'main':
+    dCg = deltaCg(1650*lbs*g,1650*g*lbs, True)
