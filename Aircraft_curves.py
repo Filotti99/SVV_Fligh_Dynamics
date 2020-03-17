@@ -58,22 +58,26 @@ def drag_polar(measurement_matrix):
     C_D_array = calc_CD(measurement_matrix)
     plt.plot(C_L_array, C_D_array)
     plt.show()
+    return C_L_array, C_D_array
 
 def lift_curve(measurement_matrix):
     Alpha_array = [row[5] for row in measurement_matrix]
     C_L_array = calc_CL(measurement_matrix)
     plt.plot(Alpha_array, C_L_array)
     plt.show()
+    return Alpha_array, C_L_array
 
 def drag_curve(measurement_matrix):
     Alpha_array = [row[5] for row in measurement_matrix]
     C_D_array = calc_CD(measurement_matrix)
     plt.plot(Alpha_array, C_D_array)
     plt.show()
+    return Alpha_array, C_D_array
 
 
-print(drag_polar(inputs.measurement_matrix_real))
-print(lift_curve(inputs.measurement_matrix_real))
-print(drag_curve(inputs.measurement_matrix_real))
-print(calc_M(inputs.measurement_matrix_real))
-print(calc_deltaT(inputs.measurement_matrix_real))
+#print(drag_polar(inputs.measurement_matrix_real))
+#print(lift_curve(inputs.measurement_matrix_real))
+#print(drag_curve(inputs.measurement_matrix_real))
+#print(calc_CL(inputs.measurement_matrix_real))
+#print(calc_M(inputs.measurement_matrix_real))
+#print(calc_deltaT(inputs.measurement_matrix_real))
