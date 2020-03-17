@@ -3,6 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import inputs
 
+
+def get_Thrust():
+    Thrust_matrix = []
+    for row in np.genfromtxt("Thrust_reference.dat"):
+        T = sum(row)
+        Thrust_matrix.append(T)
+    return Thrust_matrix
+
 def calc_e():
     Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
     CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
