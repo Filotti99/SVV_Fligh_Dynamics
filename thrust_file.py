@@ -15,7 +15,7 @@ def calc_deltaT(measurement_matrix):
     deltaT_array = []
     for row in measurement_matrix:
         T_ISA = inputs.T_0 + (row[3]*inputs.a_layer)
-        T_delta = T_ISA-row[9]
+        T_delta = row[9]-T_ISA
         deltaT_array.append(T_delta)
     return deltaT_array
 
