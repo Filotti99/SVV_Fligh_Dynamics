@@ -70,3 +70,4 @@ def deltaCg(w_f1,w_f0, a = False, ref = False):
 
 if __name__ == 'main':
     dCg = deltaCg(989*lbs*g,940*g*lbs, True, False)
+    dCg_ref = deltaCg(910*lbs*g,881*g*lbs, True, False)
