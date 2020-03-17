@@ -40,7 +40,6 @@ def calc_CD(measurement_matrix):
     counter = 0
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFi, FFr, Fused, TAT
-        W = 60500 # change to varying function
         C_D = 0.04 + (C_L_usage[counter]**2)/(math.pi*inputs.AR*calc_e())
         C_D_array.append(C_D)
         counter += 1

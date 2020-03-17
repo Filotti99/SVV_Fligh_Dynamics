@@ -2,7 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import inputs
-#import Aircraft_curves
+import Aircraft_curves
 
 def calc_M(measurement_matrix):
     M_array = []
