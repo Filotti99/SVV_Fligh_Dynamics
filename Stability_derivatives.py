@@ -29,7 +29,12 @@ def get_Cm_delta(trim_matr, general_matr, ref_input):
             Cm_delta_list.append(Cm_delta_temp)
         else:
             missing += 1
-    return np.sum(Cm_delta_list)/(len(Cm_delta_list)-missing)
+        print(Cm_delta_list)
+    return np.sum(Cm_delta_list)/(len(Cm_delta_list)-missing
+
+def calc_de_alpha(trim_matr):
+
+
 
 def get_Cm_alpha():
     Cm_delta = get_Cm_delta()
