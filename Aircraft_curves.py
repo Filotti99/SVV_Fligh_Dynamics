@@ -97,7 +97,27 @@ def drag_curve(measurement_matrix):
     plt.show()
     return Alpha_array, C_D_array
 
+def elevator_curve(measurement_matrix):
+    Combined_array = [[row[5],row[6]] for row in measurement_matrix]
+    ordered_array = []
+    for i in range(len(Combined_array)):
+        counter = 0
+        first = 100
+        best = 0
+        for item in Combined_array:
+            if item[0] < first:
+                first = item[0]
+                best = counter
+            counter += 1
+        ordered_array.append(Combined_array[best])
+        del Combined_array[best]
+    Alpha_array = [row[0] for row in ordered_array]
+    De_array = [row[1] for row in ordered_array]
+    plt.plot(Alpha_array, De_array)
+    plt.show()
+    return Alpha_array, De_array
 
+elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
 #print(lift_curve(inputs.measurement_matrix_real))
 #print(drag_curve(inputs.measurement_matrix_real))
