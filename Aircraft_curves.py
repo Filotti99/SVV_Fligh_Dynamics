@@ -93,6 +93,9 @@ def lift_curve(measurement_matrix):
     Alpha_array = [row[5] for row in measurement_matrix]
     C_L_array = calc_CL(measurement_matrix)
     plt.plot(Alpha_array, C_L_array)
+    plt.title('Lift coefficient curve as a function of the angle of attack')
+    plt.xlabel('Angle of attack [degrees]')
+    plt.ylabel('Lift coefficient [-]')
     plt.show()
     return Alpha_array, C_L_array
 
@@ -123,10 +126,10 @@ def elevator_curve(measurement_matrix):
     plt.show()
     return Alpha_array, De_array
 
-elevator_curve(inputs.trim_matrix)
+#elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-#print(lift_curve(inputs.measurement_matrix_real))
+print(lift_curve(inputs.measurement_matrix_real))
 #print(drag_curve(inputs.measurement_matrix_real))
-#print(calc_CL(inputs.measurement_matrix_real))
+print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
