@@ -23,32 +23,11 @@ def calc_W(w_f0: float,meas_mat: np.ndarray) -> np.ndarray:
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
 
-def calc_e():
-    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
-    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
-    e = CLalpha/Clalpha
-    return e
-
-def calc_CD_curve(measurement_matrix):
-    D_array = get_Thrust()
-    CL_array = calc_CL(measurement_matrix)
-    CD_array = []
-    for i in range(len(measurement_matrix)):
-        rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
-        CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
-
-    e_list = []
-    for i in range(len(D_array)-1):
-        slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
-        e_list.append((slope*math.pi*inputs.AR)**-1)
-    e = np.average(e_list)
-
-    CD0_list = []
-    for i in range(len(CD_array)):
-        CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
-    CD0 = np.average(CD0_list)
-
-    return e,es,CD0,CD0s,CD_array
+#def calc_e(): #old version, use calc_CD_curve
+#    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
+#    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
+#    e = CLalpha/Clalpha
+#    return e
 
 def calc_M(measurement_matrix):
     M_array = []
@@ -96,11 +75,8 @@ def calc_CL(measurement_matrix):
 #        counter += 1
 #    return C_D_array
 
-def calc_CD_curve(measurement_matrix):
-    if measurement_matrix == inputs.measurement_matrix_real:
-        reality = True
-    else:
-        reality = False
+
+def calc_CD_curve(measurement_matrix,reality):
     D_array = get_Thrust(reality)
     CL_array = calc_CL(measurement_matrix)
     CD_array = []
@@ -121,12 +97,18 @@ def calc_CD_curve(measurement_matrix):
 
     return e,CD0,CD_array
 
-def drag_polar(measurement_matrix):
+def drag_polar(measurement_matrix,reality):
     C_L_array = calc_CL(measurement_matrix)
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix)
-    C_D_calculated = CD0 + C_L_array**2 / (math.pi*inputs.AR*e)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    C_D_calculated = []
+    for CL in C_L_array:
+        C_D_calculated.append(CD0 + CL**2 / (math.pi*inputs.AR*e))
     plt.plot(C_L_array, C_D_array, label='measured')
     plt.plot(C_L_array, C_D_calculated, label='calculated')
+    plt.title('CL-CD polar')
+    plt.xlabel('CL')
+    plt.ylabel('CD')
+    plt.legend()
     plt.show()
     return C_L_array, C_D_array
 
@@ -134,13 +116,19 @@ def lift_curve(measurement_matrix):
     Alpha_array = [row[5] for row in measurement_matrix]
     C_L_array = calc_CL(measurement_matrix)
     plt.plot(Alpha_array, C_L_array)
+    plt.title('CL-alpha curve')
+    plt.xlabel('alpha [deg]')
+    plt.ylabel('CL')
     plt.show()
     return Alpha_array, C_L_array
 
-def drag_curve(measurement_matrix):
+def drag_curve(measurement_matrix,reality):
     Alpha_array = [row[5] for row in measurement_matrix]
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     plt.plot(Alpha_array, C_D_array)
+    plt.title('CD-alpha curve')
+    plt.xlabel('alpha [deg]')
+    plt.ylabel('CD')
     plt.show()
     return Alpha_array, C_D_array
 
@@ -161,13 +149,6 @@ def elevator_curve(measurement_matrix):
     Alpha_array = [row[0] for row in ordered_array]
     De_array = [row[1] for row in ordered_array]
     plt.plot(Alpha_array, De_array)
+    plt.title('Elevator trim curve')
     plt.show()
     return Alpha_array, De_array
-
-elevator_curve(inputs.trim_matrix)
-#print(drag_polar(inputs.measurement_matrix_real))
-#print(lift_curve(inputs.measurement_matrix_real))
-#print(drag_curve(inputs.measurement_matrix_real))
-#print(calc_CL(inputs.measurement_matrix_real))
-#print(calc_M(inputs.measurement_matrix_real))
-#print(calc_deltaT(inputs.measurement_matrix_real))
