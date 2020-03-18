@@ -19,5 +19,6 @@ def calc_deltaT(measurement_matrix):
 
 
 thrust_matrix = np.transpose(np.array([inputs.measurement_matrix[:,3], calc_M(inputs.measurement_matrix), calc_deltaT(inputs.measurement_matrix), inputs.measurement_matrix[:,6], inputs.measurement_matrix[:,7] ]))
+thrust_matrix_real = np.transpose(np.array([inputs.measurement_matrix_real[:,3], calc_M(inputs.measurement_matrix_real), calc_deltaT(inputs.measurement_matrix_real), inputs.measurement_matrix_real[:,6], inputs.measurement_matrix_real[:,7] ]))
 
-thrust_input = np.savetxt("matlab.DAT", thrust_matrix, fmt="%.6f", delimiter=" ")
+thrust_input = np.savetxt("matlab.DAT", thrust_matrix_real, fmt="%.6f", delimiter=" ")
