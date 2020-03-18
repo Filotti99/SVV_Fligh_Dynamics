@@ -4,15 +4,14 @@ import matplotlib.pyplot as plt
 import inputs
 
 
-def get_Thrust(reality): #reality must be boolean True if real data, False if referrence
+def get_Thrust(reality): #reality must be boolean True if real data, False if reference
     if reality:
         fname = "Thrust_reference.dat"
     else:
         fname = "Thrust_real.dat"
     Thrust_matrix = []
     for row in np.genfromtxt(fname):
-        T = sum(row)
-        Thrust_matrix.append(T)
+        Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
 def calc_e():
@@ -21,8 +20,8 @@ def calc_e():
     e = CLalpha/Clalpha
     return e
 
-def calc_CD_curve(measurement_matrix):
-    D_array = get_Thrust(False)
+def calc_CD_curve(measurement_matrix,reality):
+    D_array = get_Thrust(reality)
     CL_array = calc_CL(measurement_matrix)
     CD_array = []
     for i in range(len(measurement_matrix)):
