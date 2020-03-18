@@ -13,7 +13,7 @@
   - [ ] Computer generated plots of the elevator trim curve and the elevator control force curve
 
 ## To Keep in Mind
-  - [ ] All equations that are used, values of constants, SI units etc.
-  - [ ] In general, discuss how the values of parameters compare to the theoretically expected values. Does each graph have the correct and expected slope and curvature? This is a form of verification.
-  - [ ] To save space in the report, a list of symbols is not required. You can refer to the list of symbols in the AE3212-I Lecture Notes instead. However, if you use symbols that cannot be found in the Lecture Notes, these symbols should be listed or explained in your report.
-  - [ ] All plots should be discussed in the text.
+  - All equations that are used, values of constants, SI units etc.
+  - In general, discuss how the values of parameters compare to the theoretically expected values. Does each graph have the correct and expected slope and curvature? This is a form of verification.
+  - To save space in the report, a list of symbols is not required. You can refer to the list of symbols in the AE3212-I Lecture Notes instead. However, if you use symbols that cannot be found in the Lecture Notes, these symbols should be listed or explained in your report.
+  - All plots should be discussed in the text.
