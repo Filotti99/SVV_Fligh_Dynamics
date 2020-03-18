@@ -36,7 +36,7 @@ measurement_matrix_real = np.array([[3,1682, 0, 18020, 222, 2.0, 608, 668, 634, 
 trim_matrix_real = np.array([[3, 2640, 0, 18940, 134, 7.5, -1.2, 2.5, -31, 404, 455, 865, -13.5], [2, 2520, 0, 18360, 147, 6.3, -0.7, 2.5, -14, 407, 466, 840, -11.5], [1, 2400, 0, 18060, 156, 5.2, -0.3, 2.5, 1, 409, 470, 811, -10.2], [7, 2940, 0, 18360, 156, 5.2, -0.2, 2.5, 1, 480, 469, 940, -11.2], [4, 2700, 0, 18350, 168, 4.4, 0.1, 2.5, 26, 410, 471, 888, -10.5], [5, 2760, 0, 18090, 176, 3.8, 0.4, 2.5, 50, 416, 448, 901, -9.5], [6, 2820, 0, 17680, 186, 3.3, 0.7, 2.5, 83, 420, 484, 912, -7.8]])
 W_passenger_real = (95 +102 +89 +82 +66 +81 +69 +85 +96) * 0.453592 * g_0
 W_blockfuel_real = 2640 * 0.453592 * g_0
-W0_real = OEW + W_passenger_real + W_blockfuel_real
+W0_real = w_oew + W_passenger_real + W_blockfuel_real
 W_matrix_real = W0_real - measurement_matrix_real[:,8]
 measurement_matrix_real = np.c_[np.array(measurement_matrix_real),np.array(W_matrix_real)] #appends weight at each point to measurement matrix
 
@@ -47,7 +47,7 @@ trim_matrix = np.array([[1, 2239, 0, 6060, 161, 5.3, 0, 2.8, 0, 462, 486, 664, 5
 measurement_matrix = np.array([[1,30, 2000, 5010, 249, 1.7, 798, 813, 360, 12.5],[2,2137, 2000, 5020, 221, 2.4, 633, 682, 412, 10.5],[3,2436, 2000, 5020, 192, 3.6, 561, 579, 447, 8.8],[4,2604, 2000, 5030, 163, 5.4, 463, 484, 478, 7.2],[5,2947, 2000, 5020, 130, 8.7, 443, 467, 532, 6],[6,3200, 2000, 5110, 118, 10.6, 474, 499, 570, 5.2] ])
 W_passenger = (95 +92 +74 +66 +61 +75 +78 +86 +68) * 0.453592 * g_0
 W_blockfuel = 4050 * 0.453592 * g_0
-W0 = OEW + W_passenger + W_blockfuel
+W0 = w_oew + W_passenger + W_blockfuel
 W_matrix = W0 - measurement_matrix[:,8]
 measurement_matrix = np.c_[np.array(measurement_matrix),np.array(W_matrix)] #appends weight at each point to measurement matrix
 
@@ -61,37 +61,3 @@ measurement_matrix = convert(measurement_matrix)
 measurement_matrix_real = convert(measurement_matrix_real)
 trim_matrix = convert(trim_matrix)
 trim_matrix_real = convert(trim_matrix_real)
-
-'''
-for row in measurement_matrix:
-    row[3] = row[3] * 0.3048
-    row[4] = row[4] * 0.514444
-    row[6] = row[6] * (0.453592/3600)
-    row[7] = row[7] * (0.453592/3600)
-    row[8] = row[8] * 0.453592
-    row[9] = row[9] + 273.15
-
-for row in measurement_matrix_real:
-    row[3] = row[3] * 0.3048
-    row[4] = row[4] * 0.514444
-    row[6] = row[6] * (0.453592/3600)
-    row[7] = row[7] * (0.453592/3600)
-    row[8] = row[8] * 0.453592
-    row[9] = row[9] + 273.15
-
-for row in trim_matrix:
-    row[3] = row[3] * 0.3048
-    row[4] = row[4] * 0.514444
-    row[9] = row[9] * (0.453592/3600)
-    row[10] = row[10] * (0.453592/3600)
-    row[11] = row[11] * 0.453592
-    row[12] = row[12] + 273.15
-
-for row in trim_matrix_real:
-    row[3] = row[3] * 0.3048
-    row[4] = row[4] * 0.514444
-    row[9] = row[9] * (0.453592/3600)
-    row[10] = row[10] * (0.453592/3600)
-    row[11] = row[11] * 0.453592
-    row[12] = row[12] + 273.15
-'''
