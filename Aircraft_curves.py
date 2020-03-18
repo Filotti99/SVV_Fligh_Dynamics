@@ -24,7 +24,6 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
-
 #def calc_e(): #old version, use calc_CD_curve
 #    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
 #    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
@@ -102,9 +101,13 @@ def calc_CD_curve(measurement_matrix,reality):
 def drag_polar(measurement_matrix,reality):
     C_L_array = calc_CL(measurement_matrix)
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    e = 0.8
+    CD0 = 0.04
     C_D_calculated = []
-    for CL in C_L_array:
-        C_D_calculated.append(CD0 + CL**2 / (math.pi*inputs.AR*e))
+    error=[]
+    for i in range(len(C_L_array)):
+        C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
+        error.append((abs(C_D_calculated[i]-C_D_array[i])/C_D_calculated[i])*100)
     plt.plot(C_L_array, C_D_array, label='measured')
     plt.plot(C_L_array, C_D_calculated, label='calculated')
     plt.title('CL-CD polar')
@@ -112,6 +115,22 @@ def drag_polar(measurement_matrix,reality):
     plt.ylabel('CD')
     plt.legend()
     plt.show()
+    
+#    fig, ax1 = plt.subplots()
+#    ax1.set_xlabel('CL')
+#    ax1.set_ylabel('CD')
+#    ax1.plot(C_L_array, C_D_array, color='blue')
+#    ax1.plot(C_L_array, C_D_calculated, color='green')
+#    ax1.tick_params(axis='y', labelcolor='blue')
+#    
+#    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+#    ax2.set_ylabel('% error', color='red')  # we already handled the x-label with ax1
+#    ax2.plot(C_L_array, error, color='red')
+#    ax2.tick_params(axis='y', labelcolor='red')
+#    
+#    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+#    plt.show()
+    
     return C_L_array, C_D_array
 
 def lift_curve(measurement_matrix):
@@ -157,8 +176,8 @@ def elevator_curve(measurement_matrix):
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-print(lift_curve(inputs.measurement_matrix_real))
+#print(lift_curve(inputs.measurement_matrix_real))
 #print(drag_curve(inputs.measurement_matrix_real))
-print(calc_CL(inputs.measurement_matrix))
+#print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
