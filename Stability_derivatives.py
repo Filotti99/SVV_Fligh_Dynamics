@@ -4,9 +4,6 @@ import inputs
 import Aircraft_curves
 import cgLocation
 
-def get_C_N():
-    return W/(0.5*rho*V**2*S)
-
 def get_CL_alpha(input_matr):
     Alpha_list, CL_list = Aircraft_curves.lift_curve(input_matr)
     CL_alpha = (CL_list[-1]-CL_list[0])/(Alpha_list[-1]-Alpha_list[0])
