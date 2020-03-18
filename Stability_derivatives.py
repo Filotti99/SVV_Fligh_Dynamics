@@ -3,6 +3,7 @@ import numpy as np
 import inputs
 import Aircraft_curves
 import cgLocation
+import matplotlib.pyplot as plt
 
 def get_CL_alpha(input_matr):
     Alpha_list, CL_list = Aircraft_curves.lift_curve(input_matr)
@@ -35,5 +36,5 @@ def get_Cm_alpha(trim_matr, general_matr, ref_input):
     Cm_alpha = -d_delta_d_alpha*Cm_delta
     return Cm_alpha
 
-#print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True))
-print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True))
+print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True))
+#print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True))
