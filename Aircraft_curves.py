@@ -91,11 +91,13 @@ def calc_CD_curve(measurement_matrix,reality):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
         e_list.append((slope*math.pi*inputs.AR)**-1)
     e = np.average(e_list)
+    print(e_list)
 
     CD0_list = []
     for i in range(len(CD_array)):
         CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
     CD0 = np.average(CD0_list)
+    print(CD0_list)
 
     return e,CD0,CD_array
 
@@ -128,9 +130,9 @@ def drag_curve(measurement_matrix,reality):
     Alpha_array = [row[5] for row in measurement_matrix]
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     plt.plot(Alpha_array, C_D_array)
-    plt.title('CD-alpha curve')
-    plt.xlabel('alpha [deg]')
-    plt.ylabel('CD')
+    plt.title('Lift coefficient curve as a function of the angle of attack')
+    plt.xlabel('Angle of attack [deg]')
+    plt.ylabel('Drag coefficient [-]')
     plt.show()
     return Alpha_array, C_D_array
 
@@ -157,8 +159,11 @@ def elevator_curve(measurement_matrix):
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-print(lift_curve(inputs.measurement_matrix_real))
+print(lift_curve(inputs.measurement_matrix))
 #print(drag_curve(inputs.measurement_matrix_real))
-print(calc_CL(inputs.measurement_matrix))
+#print(calc_CL(inputs.measurement_matrix))
+#print(calc_CD_curve(inputs.measurement_matrix_real, True))
+#print(drag_curve(inputs.measurement_matrix_real, True))
+#print(drag_polar(inputs.measurement_matrix_real, True))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
