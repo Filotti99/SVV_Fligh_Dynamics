@@ -41,13 +41,13 @@ def calc_M(measurement_matrix):
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True,):
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.gamma))
     M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)))
-    T   = meas_matrix[:,-1]/(1+(inputs.gamma-1)/2*M**2)
+    T   = meas_matrix[:,-2]/(1+(inputs.gamma-1)/2*M**2)
     V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
 
     w_f0 = 4050 if ref else 2640
     w_f0 *= inputs.lbs*inputs.g_0
 
-    return V*np.sqrt(inputs.W_s/calc_W(w_f0,meas_matrix)) if tilda else V
+    return V*np.sqrt(inputs.W_s/meas_matrix[:,-1]) if tilda else V
 
 def calc_deltaT(measurement_matrix):
     deltaT_array = []
