@@ -1,6 +1,5 @@
 import numpy as np
 
-<<<<<<< HEAD
 # Aircraft Parameters
 
 S = 30 # m^2
@@ -19,10 +18,6 @@ inc = 0.0254 #m
 
 R = 287.0
 R_sp = 287.058 #J/kgK
-=======
-# Atmosphere Parameters
-p_0 = 101325 # Pa
->>>>>>> 74260b684284eeaf340d8f7c7b328dcc2e3720ed
 a_layer = -0.0065 # K/m
 
 p_0 = 101325 # Pa
@@ -30,19 +25,10 @@ T_0 = 288.15 # K
 rho_0 = p_0/(R_sp*T_0)
 gamma = 1.4
 
-<<<<<<< HEAD
 w_fuel     = 2640*lbs*g_0
 w_fuel_ref = 4050*lbs*g_0
 
 w_oew = 9165.0*lbs*g_0
-=======
-# Aircraft Parameters
-S = 30 # m^2
-b = 15.911
-c_bar = 2.0569
-AR = b*b/S
-OEW = 9165.0 * 0.453592 * g_0
->>>>>>> 74260b684284eeaf340d8f7c7b328dcc2e3720ed
 
 # Matrices for the flight data
 # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
@@ -108,7 +94,4 @@ for row in trim_matrix_real:
     row[10] = row[10] * (0.453592/3600)
     row[11] = row[11] * 0.453592
     row[12] = row[12] + 273.15
-<<<<<<< HEAD
 '''
-=======
->>>>>>> 74260b684284eeaf340d8f7c7b328dcc2e3720ed

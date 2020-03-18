@@ -15,7 +15,6 @@ def get_Thrust(reality): #reality must be boolean True if real data, False if re
         Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
-<<<<<<< HEAD
 def calc_W(w_f0: float,meas_mat: np.ndarray) -> np.ndarray:
 
     w_pass = np.genfromtxt("cg_data/pass_w.dat")*inputs.g_0
@@ -50,13 +49,6 @@ def calc_CD_curve(measurement_matrix):
     CD0 = np.average(CD0_list)
 
     return e,es,CD0,CD0s,CD_array
-=======
-#def calc_e(): #Old method, use calc_CD_curve
-#    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
-#    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
-#    e = CLalpha/Clalpha
-#    return e
->>>>>>> 74260b684284eeaf340d8f7c7b328dcc2e3720ed
 
 def calc_M(measurement_matrix):
     M_array = []
@@ -102,7 +94,7 @@ def calc_CL(measurement_matrix):
 #        C_D_array.append(C_D)
 #        counter += 1
 #    return C_D_array
-    
+
 def calc_CD_curve(measurement_matrix):
     if measurement_matrix == inputs.measurement_matrix_real:
         reality = True
@@ -114,18 +106,18 @@ def calc_CD_curve(measurement_matrix):
     for i in range(len(measurement_matrix)):
         rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
-    
+
     e_list = []
     for i in range(len(D_array)-1):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
         e_list.append((slope*math.pi*inputs.AR)**-1)
     e = np.average(e_list)
-    
+
     CD0_list = []
     for i in range(len(CD_array)):
         CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
     CD0 = np.average(CD0_list)
-    
+
     return e,CD0,CD_array
 
 def drag_polar(measurement_matrix):
