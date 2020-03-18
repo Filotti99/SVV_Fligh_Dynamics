@@ -15,9 +15,11 @@ def get_Thrust(reality): #reality must be boolean True if real data, False if re
         Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
-def calc_W(w_f0: float,meas_mat: np.ndarray) -> np.ndarray:
+def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
-    w_pass = np.genfromtxt("cg_data/pass_w.dat")*inputs.g_0
+    path = "cg_data/pass_w_ref.dat" if ref else "cg_data/pass_w.dat"
+
+    w_pass = np.genfromtxt(path)*inputs.g_0
     w_f = w_f0 - meas_mat[:,-2]
 
     return np.sum(w_pass)+ w_f + inputs.w_oew
