@@ -18,6 +18,7 @@ def get_Cm_delta(trim_matr, general_matr, ref_input):
     delta_xcg_list = []
     Cm_delta_list = []
     c_bar = inputs.c_bar
+    missing = 0
     for row in trim_matr:
         delta_e_list.append(row[6])
         x_cg_temp = -cgLocation.deltaCg(row[11], 0, ref = ref_input) #should this be a minus #TODO
@@ -26,7 +27,9 @@ def get_Cm_delta(trim_matr, general_matr, ref_input):
         if delta_e_list[i] != 0:
             Cm_delta_temp = (-1/delta_e_list[i])*CN_list[i]*(delta_xcg_list[i]/c_bar)
             Cm_delta_list.append(Cm_delta_temp)
-    return np.sum(Cm_delta_list)/(len(Cm_delta_list)-1)
+        else:
+            missing += 1
+    return np.sum(Cm_delta_list)/(len(Cm_delta_list)-missing)
 
 def get_Cm_alpha():
     Cm_delta = get_Cm_delta()
