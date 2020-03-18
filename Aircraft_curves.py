@@ -36,7 +36,7 @@ def calc_CD_curve(measurement_matrix):
         CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
     CD0 = np.average(CD0_list)
     
-    return e,es,CD0,CD0s,CD_array
+    return e,e_list,CD0,CD0_list,CD_array
 
 def calc_M(measurement_matrix):
     M_array = []
@@ -56,10 +56,9 @@ def calc_deltaT(measurement_matrix):
 def calc_CL(measurement_matrix):
     C_L_array = []
     for row in measurement_matrix:
-        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
+        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
-        W = 60500 # change to varying function
-        C_L = W/(0.5*rho*row[4]**2*inputs.S)
+        C_L = row[10]/(0.5*rho*row[4]**2*inputs.S)
         C_L_array.append(C_L)
     return C_L_array
 
@@ -68,7 +67,7 @@ def calc_CD(measurement_matrix):
     C_L_usage = calc_CL(measurement_matrix)
     counter = 0
     for row in measurement_matrix:
-        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
+        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         C_D = 0.04 + (C_L_usage[counter]**2)/(math.pi*inputs.AR*calc_e())
         C_D_array.append(C_D)
         counter += 1
