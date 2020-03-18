@@ -36,9 +36,10 @@ trim_matrix_real = np.array([[3, 2640, 0, 18940, 134, 7.5, -1.2, 2.5, -31, 404, 
 W_passenger_real = (95 +102 +89 +82 +66 +81 +69 +85 +96) * lbs * g_0
 w_fuel_real     = 2640*lbs*g_0
 W0_real = w_oew + W_passenger_real + w_fuel_real
-W_matrix_real = W0_real - measurement_matrix_real[:,8]
+W_matrix_real = W0_real - lbs*g_0*measurement_matrix_real[:,-2]
+W_trim_matrix_real = W0_real - lbs*g_0*trim_matrix_real[:,-2]
 measurement_matrix_real = np.c_[np.array(measurement_matrix_real),np.array(W_matrix_real)]#appends weight at each point to measurement matrix
-trim_matrix_real = np.c_[np.array(trim_matrix_real),np.array(W_matrix_real)]
+trim_matrix_real = np.c_[np.array(trim_matrix_real),np.array(W_trim_matrix_real)]
 
 # Reference data
 # nr, time, ET, altitude, IAS, alpha, de, detr, Fe, FFl, FFr, Fused, TAT
@@ -48,9 +49,10 @@ measurement_matrix = np.array([[1,30, 2000, 5010, 249, 1.7, 798, 813, 360, 12.5]
 W_passenger = (95 +92 +74 +66 +61 +75 +78 +86 +68)*lbs*g_0
 w_fuel = 4050*lbs*g_0
 W0 = w_oew + W_passenger + w_fuel
-W_matrix = W0 - measurement_matrix[:,8]
+W_matrix = W0 - lbs*g_0*measurement_matrix[:,-2]
+W_trim_matrix = W0 - lbs*g_0*trim_matrix[:,-2]
 measurement_matrix = np.c_[np.array(measurement_matrix),np.array(W_matrix)] #appends weight at each point to measurement matrix
-trim_matrix = np.c_[np.array(trim_matrix),np.array(W_matrix)]
+trim_matrix = np.c_[np.array(trim_matrix),np.array(W_trim_matrix)]
 
 
 # Adjustments of the measurement matrices to correct units
