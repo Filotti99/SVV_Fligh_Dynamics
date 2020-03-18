@@ -57,7 +57,7 @@ trim_matrix = np.c_[np.array(trim_matrix),np.array(W_trim_matrix)]
 
 # Adjustments of the measurement matrices to correct units
 def convert(mat: np.ndarray):
-    mat = np.column_stack((mat[:,0:3],mat[:,3]*0.3048,mat[:,4]*0.514444,mat[:,5:-5],mat[:,-4:-3]*(0.453592/3600),mat[:,-3]*0.453592,mat[:,-2]+273.15, mat[-1]))
+    mat = np.column_stack((mat[:,0:3],mat[:,3]*0.3048,mat[:,4]*0.514444,mat[:,5:-5],mat[:,-5:-3]*(0.453592/3600),mat[:,-3]*0.453592,mat[:,-2]+273.15, mat[-1]))
     return mat
 
 measurement_matrix = convert(measurement_matrix)
