@@ -1,19 +1,34 @@
 import numpy as np
 
-# Atmosphere Parameters
-p_0 = 101325 # Pa
-a_layer = -0.0065 # K/m
-T_0 = 288.15 # K
-g_0 = 9.80665 # m/s^2
-R = 287.0
-gamma = 1.4
-
 # Aircraft Parameters
+
 S = 30 # m^2
 b = 15.911
 c_bar = 2.0569
 AR = b*b/S
-OEW = 9165.0 * 0.453592 * g_0
+
+#Standard Parameters
+
+W_s = 60500 #N
+g_0 = 9.80665 # m/s^2
+lbs = 0.45359 #kg
+inc = 0.0254 #m
+
+# Atmosphere Parameters
+
+R = 287.0
+R_sp = 287.058 #J/kgK
+a_layer = -0.0065 # K/m
+
+p_0 = 101325 # Pa
+T_0 = 288.15 # K
+rho_0 = p_0/(R_sp*T_0)
+gamma = 1.4
+
+w_fuel     = 2640*lbs*g_0
+w_fuel_ref = 4050*lbs*g_0
+
+w_oew = 9165.0*lbs*g_0
 
 # Matrices for the flight data
 # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
@@ -38,6 +53,16 @@ measurement_matrix = np.c_[np.array(measurement_matrix),np.array(W_matrix)] #app
 
 
 # Adjustments of the measurement matrices to correct units
+def convert(mat: np.ndarray):
+    mat = np.column_stack((mat[:,0:3],mat[:,3]*0.3048,mat[:,4]*0.514444,mat[:,5:-4],mat[:,-4:-2]*(0.453592/3600),mat[:,-2]*0.453592,mat[:,-1]+273.15))
+    return mat
+
+measurement_matrix = convert(measurement_matrix)
+measurement_matrix_real = convert(measurement_matrix_real)
+trim_matrix = convert(trim_matrix)
+trim_matrix_real = convert(trim_matrix_real)
+
+'''
 for row in measurement_matrix:
     row[3] = row[3] * 0.3048
     row[4] = row[4] * 0.514444
@@ -69,3 +94,4 @@ for row in trim_matrix_real:
     row[10] = row[10] * (0.453592/3600)
     row[11] = row[11] * 0.453592
     row[12] = row[12] + 273.15
+'''
