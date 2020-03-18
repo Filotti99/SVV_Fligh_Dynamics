@@ -3,9 +3,7 @@ import numpy as np
 import inputs
 import Aircraft_curves
 import cgLocation
-
-def get_C_N():
-    return W/(0.5*rho*V**2*S)
+import matplotlib.pyplot as plt
 
 def get_CL_alpha(input_matr):
     Alpha_list, CL_list = Aircraft_curves.lift_curve(input_matr)
@@ -31,10 +29,12 @@ def get_Cm_delta(trim_matr, general_matr, ref_input):
             missing += 1
     return np.sum(Cm_delta_list)/(len(Cm_delta_list)-missing)
 
-def get_Cm_alpha():
-    Cm_delta = get_Cm_delta()
-    d_delta_d_alpha = get_elevator_trim_slope()
+def get_Cm_alpha(trim_matr, general_matr, ref_input):
+    Cm_delta = get_Cm_delta(trim_matr, general_matr, ref_input)
+    alpha, delta = Aircraft_curves.elevator_curve(trim_matr)
+    d_delta_d_alpha = (delta[-1]-delta[0])/(alpha[-1]-alpha[0])
     Cm_alpha = -d_delta_d_alpha*Cm_delta
     return Cm_alpha
 
 print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True))
+#print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True))
