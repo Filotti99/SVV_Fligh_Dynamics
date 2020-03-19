@@ -24,7 +24,6 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
-
 #def calc_e(): #old version, use calc_CD_curve
 #    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
 #    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
@@ -38,21 +37,32 @@ def calc_M(measurement_matrix):
         M_array.append(M)
     return M_array
 
+<<<<<<< HEAD
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True):
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.gamma))
+=======
+def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True,):
+    p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
+>>>>>>> a99417b1593e056382a474867049594a696e187b
     M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)))
+    print("M",M)
     T   = meas_matrix[:,-2]/(1+(inputs.gamma-1)/2*M**2)
-    V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
+    V   = M*np.sqrt(inputs.gamma*inputs.R*T)
+    #V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
 
     w_f0 = 4050 if ref else 2640
     w_f0 *= inputs.lbs*inputs.g_0
 
     return V*np.sqrt(inputs.W_s/meas_matrix[:,-1]) if tilda else V
 
+<<<<<<< HEAD
 def de_red(meas_mat: np.ndarray, cmd: float, Tcs: np.ndarray, Tc: np.ndarray):
     if meas_mat.shape[1] < 13:
         return 0
 
+=======
+print(V_e_red(inputs.measurement_matrix_real, True))
+>>>>>>> a99417b1593e056382a474867049594a696e187b
 
 def calc_deltaT(measurement_matrix):
     deltaT_array = []
@@ -67,6 +77,7 @@ def calc_CL(measurement_matrix):
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        #rho = inputs.rho_0
         C_L = row[10]/(0.5*rho*row[4]**2*inputs.S)
         C_L_array.append(C_L)
     return C_L_array
@@ -89,6 +100,7 @@ def calc_CD_curve(measurement_matrix,reality):
     CD_array = []
     for i in range(len(measurement_matrix)):
         rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
+        #rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
 
     e_list = []
@@ -107,9 +119,13 @@ def calc_CD_curve(measurement_matrix,reality):
 def drag_polar(measurement_matrix,reality):
     C_L_array = calc_CL(measurement_matrix)
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    e = 0.8
+    CD0 = 0.04
     C_D_calculated = []
-    for CL in C_L_array:
-        C_D_calculated.append(CD0 + CL**2 / (math.pi*inputs.AR*e))
+    error=[]
+    for i in range(len(C_L_array)):
+        C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
+        error.append((abs(C_D_calculated[i]-C_D_array[i])/C_D_calculated[i])*100)
     plt.plot(C_L_array, C_D_array, label='measured')
     plt.plot(C_L_array, C_D_calculated, label='calculated')
     plt.title('CL-CD polar')
@@ -117,6 +133,22 @@ def drag_polar(measurement_matrix,reality):
     plt.ylabel('CD')
     plt.legend()
     plt.show()
+
+#    fig, ax1 = plt.subplots()
+#    ax1.set_xlabel('CL')
+#    ax1.set_ylabel('CD')
+#    ax1.plot(C_L_array, C_D_array, color='blue')
+#    ax1.plot(C_L_array, C_D_calculated, color='green')
+#    ax1.tick_params(axis='y', labelcolor='blue')
+#
+#    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+#    ax2.set_ylabel('% error', color='red')  # we already handled the x-label with ax1
+#    ax2.plot(C_L_array, error, color='red')
+#    ax2.tick_params(axis='y', labelcolor='red')
+#
+#    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+#    plt.show()
+
     return C_L_array, C_D_array
 
 def lift_curve(measurement_matrix):
@@ -133,9 +165,9 @@ def drag_curve(measurement_matrix,reality):
     Alpha_array = [row[5] for row in measurement_matrix]
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     plt.plot(Alpha_array, C_D_array)
-    plt.title('CD-alpha curve')
-    plt.xlabel('alpha [deg]')
-    plt.ylabel('CD')
+    plt.title('Lift coefficient curve as a function of the angle of attack')
+    plt.xlabel('Angle of attack [deg]')
+    plt.ylabel('Drag coefficient [-]')
     plt.show()
     return Alpha_array, C_D_array
 
@@ -164,6 +196,6 @@ def elevator_curve(measurement_matrix):
 #print(drag_polar(inputs.measurement_matrix_real))
 print(lift_curve(inputs.measurement_matrix_real))
 #print(drag_curve(inputs.measurement_matrix_real))
-print(calc_CL(inputs.measurement_matrix))
+#print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
