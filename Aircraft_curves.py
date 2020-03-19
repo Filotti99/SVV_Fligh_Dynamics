@@ -82,46 +82,30 @@ def calc_deltaT(measurement_matrix):
 
 def calc_CL(measurement_matrix, ref):
     C_L_array = []
-    #V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
-    #V_e_red_array = V_e_red(measurement_matrix, ref, True, False) # array with the equivalent reduced airspeed
+    V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
     V_t_array = V_e_red(measurement_matrix, ref, False, True) # array with the true airspeed
     counter = 0
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
+        rho = inputs.rho_0
+        C_L = row[10]/(0.5*rho*V_e_array[counter]**2*inputs.S)
         #rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
-        #rho = inputs.rho_0
-        #C_L = row[10]/(0.5*rho*V_e_array[counter]**2*inputs.S)
-        #print("CL equivalent",C_L)
-        #C_L = row[10] / (0.5 * rho * V_e_red_array[counter] ** 2 * inputs.S)
-        #print("CL reduced", C_L)
-        rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
-        C_L = row[10] / (0.5 * rho * V_t_array[counter] ** 2 * inputs.S)
-        #print("CL true",C_L)
-
+        #C_L = row[10] / (0.5 * rho * V_t_array[counter] ** 2 * inputs.S)
         C_L_array.append(C_L)
         counter += 1
     return C_L_array
 
-#def calc_CD(measurement_matrix): #Old method, use calc_CD_curve
-#    C_D_array = []
-#    C_L_usage = calc_CL(measurement_matrix)
-#    counter = 0
-#    for row in measurement_matrix:
-#        # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
-#        C_D = 0.04 + (C_L_usage[counter]**2)/(math.pi*inputs.AR*calc_e())
-#        C_D_array.append(C_D)
-#        counter += 1
-#    return C_D_array
-
-
-def calc_CD_curve(measurement_matrix,reality:bool):
-    D_array = get_Thrust(reality,False,False)
-    CL_array = calc_CL(measurement_matrix,not(reality))
+def calc_CD_curve(measurement_matrix,reality, ref):
+    D_array = get_Thrust(reality)
+    CL_array = calc_CL(measurement_matrix, ref)
     CD_array = []
+    V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
+    counter = 0
     for i in range(len(measurement_matrix)):
-        rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
-        #rho = inputs.rho_0
-        CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
+        #rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
+        rho = inputs.rho_0
+        CD_array.append(D_array[i]/(0.5*rho*V_e_array[counter]**2*inputs.S))
+        counter += 1
 
     e_list = []
     for i in range(len(D_array)-1):
@@ -138,12 +122,12 @@ def calc_CD_curve(measurement_matrix,reality:bool):
     CD0 = np.average(CD0_list)
     CD02 = np.average(CD02_list)
 
-    return e,e2,CD0,CD0_list,CD02,CD02_list,CD_array
-#    return e,CD0,CD_array
+    #return e,e2,CD0,CD0_list,CD02,CD02_list,CD_array
+    return e,CD0,CD_array
 
-def drag_polar(measurement_matrix,reality):
-    C_L_array = calc_CL(measurement_matrix,not(reality))
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+def drag_polar(measurement_matrix,reality, ref):
+    C_L_array = calc_CL(measurement_matrix, ref)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality, ref)
     e = 0.8
     CD0 = 0.04
     C_D_calculated = []
@@ -186,11 +170,11 @@ def lift_curve(measurement_matrix, ref):
     plt.show()
     return Alpha_array, C_L_array
 
-def drag_curve(measurement_matrix,reality:bool):
+def drag_curve(measurement_matrix,reality, ref):
     Alpha_array = [row[5] for row in measurement_matrix]
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality, ref)
     plt.plot(Alpha_array, C_D_array)
-    plt.title('Lift coefficient curve as a function of the angle of attack')
+    plt.title('Drag coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [deg]')
     plt.ylabel('Drag coefficient [-]')
     plt.show()
@@ -255,9 +239,9 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 
 
 #elevator_curve(inputs.trim_matrix)
-#print(drag_polar(inputs.measurement_matrix_real))
-#print(lift_curve(inputs.measurement_matrix_real, False))
-#print(drag_curve(inputs.measurement_matrix_real))
+print(drag_polar(inputs.measurement_matrix_real, True, False))
+#print(lift_curve(inputs.measurement_matrix_real, False)
+print(drag_curve(inputs.measurement_matrix_real, True, False))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
