@@ -43,16 +43,24 @@ def calc_M(measurement_matrix):
         M_array.append(M)
     return M_array
 
-def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True,):
-    p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.gamma))
-    M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)))
+def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
+    p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
+    M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)-1))
+    print("M",M)
     T   = meas_matrix[:,-2]/(1+(inputs.gamma-1)/2*M**2)
+    if vtas:
+        return M*np.sqrt(inputs.gamma*inputs.R*T)
     V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
 
     w_f0 = 4050 if ref else 2640
     w_f0 *= inputs.lbs*inputs.g_0
 
     return V*np.sqrt(inputs.W_s/meas_matrix[:,-1]) if tilda else V
+
+def de_red(meas_mat: np.ndarray, cmd: float, Tcs: np.ndarray, Tc: np.ndarray):
+    if meas_mat.shape[1] < 13:
+        return 0
+
 
 def calc_deltaT(measurement_matrix):
     deltaT_array = []
@@ -67,6 +75,7 @@ def calc_CL(measurement_matrix):
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        #rho = inputs.rho_0
         C_L = row[10]/(0.5*rho*row[4]**2*inputs.S)
         C_L_array.append(C_L)
     return C_L_array
@@ -89,6 +98,7 @@ def calc_CD_curve(measurement_matrix,reality):
     CD_array = []
     for i in range(len(measurement_matrix)):
         rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
+        #rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
 
     e_list = []
@@ -182,7 +192,7 @@ def elevator_curve(measurement_matrix):
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-#print(lift_curve(inputs.measurement_matrix_real))
+print(lift_curve(inputs.measurement_matrix_real))
 #print(drag_curve(inputs.measurement_matrix_real))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
