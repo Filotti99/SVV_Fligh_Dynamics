@@ -4,22 +4,24 @@ import matplotlib.pyplot as plt
 import inputs
 from tools import interpolate
 
-
-def get_Thrust(reality): #reality must be boolean True if real data, False if reference
+def get_Thrust(reality: bool, nominal: bool):
+    fname = "Thrust"
     if reality:
-        fname = "Thrust_reference.dat"
-    else:
-        fname = "Thrust_real.dat"
+        fname += "_real"
+    if nominal:
+        fname += "_nominal"
+    fname += ".dat"
+
     Thrust_matrix = []
     for row in np.genfromtxt(fname):
         Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
-def calc_Tc(measurement_matrix, reality):
-    Thrust_matrix = get_Thrust(reality)
+def calc_Tc(measurement_matrix, reality:bool, nominal:bool):
+    Thrust_matrix = get_Thrust(reality,nominal)
     Tc_array = []
     for i in range(len(measurement_matrix)):
-        Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho0*measurement_matrix[i][4]**2*inputs.d**2))
+        Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho_0*measurement_matrix[i][4]**2*inputs.d**2))
     return Tc_array
 
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
@@ -103,7 +105,7 @@ def calc_CD_curve(measurement_matrix,reality, ref):
         counter += 1
 
     e_list = []
-    for i in range(2,len(D_array)-1):
+    for i in range(len(D_array)-1):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
         e_list.append((slope*math.pi*inputs.AR)**-1)
     e = np.average(e_list)
@@ -196,9 +198,12 @@ def elevator_curve(measurement_matrix):
     plt.show()
     return Alpha_array, De_array
 
-def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
-    V_e_tilda = V_e_red(meas_mat, ref, tilda=True)
-    d_e_star  = de_red(meas_mat, c_md, Tcs, Tc)
+def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
+    Tcs = np.array(calc_Tc(trim_mat, not ref, True))
+    Tc  = np.array(calc_Tc(trim_mat, not ref, False))
+
+    V_e_tilda = V_e_red(trim_mat, ref, tilda=True)
+    d_e_star  = de_red(trim_mat, c_md, Tcs, Tc)
 
     plt.figure("Reduced Elevator Deflection Curve")
     plt.plot(V_e_tilda, d_e_star)
