@@ -60,14 +60,17 @@ def calc_deltaT(measurement_matrix):
         deltaT_array.append(T_delta)
     return deltaT_array
 
-def calc_CL(measurement_matrix):
+def calc_CL(measurement_matrix, ref):
     C_L_array = []
+    V_t_array = V_e_red(measurement_matrix, ref, False) # array with the true airspeed
+    counter = 0
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
         #rho = inputs.rho_0
-        C_L = row[10]/(0.5*rho*row[4]**2*inputs.S)
+        C_L = row[10]/(0.5*rho*V_t_array[counter]**2*inputs.S)
         C_L_array.append(C_L)
+        counter += 1
     return C_L_array
 
 #def calc_CD(measurement_matrix): #Old method, use calc_CD_curve
@@ -182,7 +185,7 @@ def elevator_curve(measurement_matrix):
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-print(lift_curve(inputs.measurement_matrix_real))
+print(lift_curve(inputs.measurement_matrix_real, False))
 #print(drag_curve(inputs.measurement_matrix_real))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
