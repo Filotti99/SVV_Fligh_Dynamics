@@ -11,7 +11,7 @@ def get_Thrust(reality: bool, nominal: bool):
     if nominal:
         fname += "_nominal"
     fname += ".dat"
-    
+
     Thrust_matrix = []
     for row in np.genfromtxt(fname):
         Thrust_matrix.append(sum(row))
@@ -214,7 +214,10 @@ def elevator_curve(measurement_matrix):
     plt.show()
     return Alpha_array, De_array
 
-def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
+def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float):
+    Tcs = calc_Tc(meas_mat, not ref, True)
+    Tc  = calc_Tc(meas_mat, not ref, False)
+
     V_e_tilda = V_e_red(meas_mat, ref, tilda=True)
     d_e_star  = de_red(meas_mat, c_md, Tcs, Tc)
 
