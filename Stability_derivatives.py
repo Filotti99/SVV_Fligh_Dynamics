@@ -5,13 +5,13 @@ import Aircraft_curves
 import cgLocation
 import matplotlib.pyplot as plt
 
-def get_CL_alpha(input_matr):
-    Alpha_list, CL_list = Aircraft_curves.lift_curve(input_matr)
+def get_CL_alpha(input_matr, ref):
+    Alpha_list, CL_list = Aircraft_curves.lift_curve(input_matr, ref)
     CL_alpha = (CL_list[-1]-CL_list[0])/(Alpha_list[-1]-Alpha_list[0])
     return CL_alpha
 
 def get_Cm_delta(trim_matr, general_matr, ref_input):
-    CN_list = Aircraft_curves.calc_CL(general_matr) # C_N approximated as C_L
+    CN_list = Aircraft_curves.calc_CL(general_matr, ref_input) # C_N approximated as C_L
     delta_e_list = []
     delta_xcg_list = []
     Cm_delta_list = []
@@ -36,6 +36,12 @@ def get_Cm_alpha(trim_matr, general_matr, ref_input):
     Cm_alpha = -d_delta_d_alpha*Cm_delta
     return Cm_alpha
 
-#print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True))
-#print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True))
-print(get_CL_alpha(inputs.measurement_matrix))
+# Based on reference data
+print("Cm_delta =",get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
+print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
+print("CL_alpha =",get_CL_alpha(inputs.measurement_matrix, True)*180/math.pi)
+
+# Based on real flight test data
+#print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix_real, False)*180/math.pi)
+#print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix_real, False)*180/math.pi)
+#print(get_CL_alpha(inputs.measurement_matrix_real, False)*180/math.pi)
