@@ -206,7 +206,7 @@ def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.nda
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-#print(lift_curve(inputs.measurement_matrix_real, False))
+print(lift_curve(inputs.measurement_matrix_real, False))
 #print(drag_curve(inputs.measurement_matrix_real, True, False))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))

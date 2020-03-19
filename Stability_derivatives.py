@@ -36,7 +36,12 @@ def get_Cm_alpha(trim_matr, general_matr, ref_input):
     Cm_alpha = -d_delta_d_alpha*Cm_delta
     return Cm_alpha
 
-print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
-print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
+# Based on reference data
+print("Cm_delta =",get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
+print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
+print("CL_alpha =",get_CL_alpha(inputs.measurement_matrix, True)*180/math.pi)
+
+# Based on real flight test data
+#print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix_real, False)*180/math.pi)
+#print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix_real, False)*180/math.pi)
 #print(get_CL_alpha(inputs.measurement_matrix_real, False)*180/math.pi)
-#print(get_CL_alpha(inputs.measurement_matrix, True)*180/math.pi)
