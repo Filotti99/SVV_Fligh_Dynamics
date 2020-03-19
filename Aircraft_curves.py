@@ -17,9 +17,10 @@ def get_Thrust(reality): #reality must be boolean True if real data, False if re
 
 def calc_Tc(measurement_matrix, reality):
     Thrust_matrix = get_Thrust(reality)
-    Tc = T / (0.5*rho*V**2*inputs.d**2)
-    
-    return Tc
+    Tc_array = []
+    for i in range(len(measurement_matrix)):
+        Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho0*measurement_matrix[i][4]**2*inputs.d**2))
+    return Tc_array
 
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
@@ -102,16 +103,21 @@ def calc_CD_curve(measurement_matrix,reality):
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
 
     e_list = []
-    for i in range(len(D_array)-1):
+    for i in range(2,len(D_array)-1):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
         e_list.append((slope*math.pi*inputs.AR)**-1)
     e = np.average(e_list)
+    e2 = (math.pi*inputs.AR*(CD_array[-1] - CD_array[0]) / (CL_array[-1]**2-CL_array[0]**2))**-1
 
     CD0_list = []
+    CD02_list = []
     for i in range(len(CD_array)):
         CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
+        CD02_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e2)))
     CD0 = np.average(CD0_list)
+    CD02 = np.average(CD02_list)
 
+    #return e,e2,CD0,CD0_list,CD02,CD02_list,CD_array
     return e,CD0,CD_array
 
 def drag_polar(measurement_matrix,reality):
