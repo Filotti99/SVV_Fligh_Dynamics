@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import inputs
 from tools import interpolate
+from scipy import stats
 
 def get_Thrust(reality:bool, nominal:bool, trim:bool):
     fname = "Thrust"
@@ -95,36 +96,25 @@ def calc_CL(measurement_matrix, ref):
     return C_L_array
 
 def calc_CD_curve(measurement_matrix,reality, ref):
-    D_array = get_Thrust(reality, False, False)
-    CL_array = calc_CL(measurement_matrix, ref)
+    D_array = get_Thrust(reality,False,False)
+    CL_array = calc_CL(measurement_matrix, not reality)
+    V_e_array = V_e_red(measurement_matrix, not reality, False, False) # array with the equivalent airspeed
     CD_array = []
-    V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
+    CL2_array = []
     for i in range(len(measurement_matrix)):
         #rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
         rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
+        CL2_array.append(CL_array[i]**2)
 
-    e_list = []
-    for i in range(len(D_array)-1):
-        slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
-        e_list.append((slope*math.pi*inputs.AR)**-1)
-    e = np.average(e_list)
-    e2 = (math.pi*inputs.AR*(CD_array[-1] - CD_array[0]) / (CL_array[-1]**2-CL_array[0]**2))**-1
+    slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
+    e = (slope * math.pi * inputs.AR)**-1
 
-    CD0_list = []
-    CD02_list = []
-    for i in range(len(CD_array)):
-        CD0_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e)))
-        CD02_list.append(CD_array[i] -(CL_array[i]**2/(math.pi*inputs.AR*e2)))
-    CD0 = np.average(CD0_list)
-    CD02 = np.average(CD02_list)
-
-    #return e,e2,CD0,CD0_list,CD02,CD02_list,CD_array
     return e,CD0,CD_array
 
-def drag_polar(measurement_matrix,reality, ref):
-    C_L_array = calc_CL(measurement_matrix, ref)
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality, ref)
+def drag_polar(measurement_matrix,reality):
+    C_L_array = calc_CL(measurement_matrix,not reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     e = 0.8
     CD0 = 0.04
     C_D_calculated = []
@@ -167,9 +157,9 @@ def lift_curve(measurement_matrix, ref):
     plt.show()
     return Alpha_array, C_L_array
 
-def drag_curve(measurement_matrix,reality, ref):
+def drag_curve(measurement_matrix,reality):
     Alpha_array = [row[5] for row in measurement_matrix]
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality, ref)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     plt.plot(Alpha_array, C_D_array)
     plt.title('Drag coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [deg]')
@@ -213,7 +203,7 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
     plt.savefig("figures/red_el_curve.png")
     plt.show()
 
-print(elevator)
+
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real, True, False))
