@@ -23,7 +23,7 @@ def calc_Tc(measurement_matrix, reality:bool, nominal:bool, trim:bool):
     Thrust_matrix = get_Thrust(reality,nominal,trim)
     Tc_array = []
     for i in range(len(measurement_matrix)):
-        Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho0*measurement_matrix[i][4]**2*inputs.d**2))
+        Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho_0*measurement_matrix[i][4]**2*inputs.d**2))
     return Tc_array
 
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
@@ -216,12 +216,12 @@ def elevator_curve(measurement_matrix):
     plt.show()
     return Alpha_array, De_array
 
-def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float):
-    Tcs = calc_Tc(meas_mat, not ref, True)
-    Tc  = calc_Tc(meas_mat, not ref, False)
+def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
+    Tcs = np.array(calc_Tc(trim_mat, not ref, True))
+    Tc  = np.array(calc_Tc(trim_mat, not ref, False))
 
-    V_e_tilda = V_e_red(meas_mat, ref, tilda=True)
-    d_e_star  = de_red(meas_mat, c_md, Tcs, Tc)
+    V_e_tilda = V_e_red(trim_mat, ref, tilda=True)
+    d_e_star  = de_red(trim_mat, c_md, Tcs, Tc)
 
     plt.figure("Reduced Elevator Deflection Curve")
     plt.plot(V_e_tilda, d_e_star)
