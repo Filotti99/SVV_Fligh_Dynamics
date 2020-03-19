@@ -122,7 +122,7 @@ def calc_CD_curve(measurement_matrix,reality, ref):
 
 def drag_polar(measurement_matrix,reality, ref):
     C_L_array = calc_CL(measurement_matrix, ref)
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality, ref)
     e = 0.8
     CD0 = 0.04
     C_D_calculated = []
@@ -169,7 +169,7 @@ def drag_curve(measurement_matrix,reality, ref):
     Alpha_array = [row[5] for row in measurement_matrix]
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality, ref)
     plt.plot(Alpha_array, C_D_array)
-    plt.title('Lift coefficient curve as a function of the angle of attack')
+    plt.title('Drag coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [deg]')
     plt.ylabel('Drag coefficient [-]')
     plt.show()
@@ -211,9 +211,9 @@ def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.nda
 
 
 #elevator_curve(inputs.trim_matrix)
-#print(drag_polar(inputs.measurement_matrix_real))
-print(lift_curve(inputs.measurement_matrix_real, False))
-#print(drag_curve(inputs.measurement_matrix_real, True, False))
+print(drag_polar(inputs.measurement_matrix_real, True, False))
+#print(lift_curve(inputs.measurement_matrix_real, False)
+print(drag_curve(inputs.measurement_matrix_real, True, False))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
