@@ -51,9 +51,13 @@ def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
 
     return V*np.sqrt(inputs.W_s/meas_matrix[:,-1]) if tilda else V
 
-def de_red(meas_mat: np.ndarray, cmd: float, Tcs: np.ndarray, Tc: np.ndarray):
+def de_red(meas_mat: np.ndarray, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
     if meas_mat.shape[1] < 13:
         return 0
+
+    c_mtc = − 0.0064
+
+    return meas_mat[:,6] - (c_mtc/c_md)*(Tcs-Tc)
 
 
 def calc_deltaT(measurement_matrix):
@@ -183,6 +187,20 @@ def elevator_curve(measurement_matrix):
     plt.title('Elevator trim curve')
     plt.show()
     return Alpha_array, De_array
+
+def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
+    V_e_tilda = V_e_red(meas_mat, ref, tilda=True)
+    d_e_star  = de_red(meas_mat, c_md, Tcs, Tc)
+
+    plt.figure("Reduced Elevator Deflection Curve")
+    plt.plot(V_e_tilda, d_e_star)
+    plt.xlabel("Reduced Airspeed [m/s]")
+    plt.ylabel("Reduced Elevator Deflection [$^{\cirlce}$]")
+    plt.title("Reduced Elevator Deflection Curve")
+    plt.savefig("figures/red_el_curve.png")
+    plt.show()
+
+
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
