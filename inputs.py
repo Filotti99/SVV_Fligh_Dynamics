@@ -6,6 +6,7 @@ S = 30 # m^2
 b = 15.911
 c_bar = 2.0569
 AR = b*b/S
+d = 0.68 #engine diameter
 
 #Standard Parameters
 

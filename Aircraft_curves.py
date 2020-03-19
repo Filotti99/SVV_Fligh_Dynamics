@@ -15,6 +15,12 @@ def get_Thrust(reality): #reality must be boolean True if real data, False if re
         Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
+def calc_Tc(measurement_matrix, reality):
+    Thrust_matrix = get_Thrust(reality)
+    Tc = T / (0.5*rho*V**2*inputs.d**2)
+    
+    return Tc
+
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
     path = "cg_data/pass_w_ref.dat" if ref else "cg_data/pass_w.dat"
