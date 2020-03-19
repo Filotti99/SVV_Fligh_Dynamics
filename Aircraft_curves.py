@@ -95,16 +95,14 @@ def calc_CL(measurement_matrix, ref):
     return C_L_array
 
 def calc_CD_curve(measurement_matrix,reality, ref):
-    D_array = get_Thrust(reality)
+    D_array = get_Thrust(reality, False, False)
     CL_array = calc_CL(measurement_matrix, ref)
     CD_array = []
     V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
-    counter = 0
     for i in range(len(measurement_matrix)):
         #rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
         rho = inputs.rho_0
-        CD_array.append(D_array[i]/(0.5*rho*V_e_array[counter]**2*inputs.S))
-        counter += 1
+        CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
 
     e_list = []
     for i in range(len(D_array)-1):
@@ -215,12 +213,12 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
     plt.savefig("figures/red_el_curve.png")
     plt.show()
 
-
+print(elevator)
 
 #elevator_curve(inputs.trim_matrix)
-print(drag_polar(inputs.measurement_matrix_real, True, False))
-#print(lift_curve(inputs.measurement_matrix_real, False)
-print(drag_curve(inputs.measurement_matrix_real, True, False))
+#print(drag_polar(inputs.measurement_matrix_real, True, False))
+print(lift_curve(inputs.measurement_matrix, False))
+#print(drag_curve(inputs.measurement_matrix_real, True, False))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
