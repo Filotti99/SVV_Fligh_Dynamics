@@ -17,16 +17,10 @@ def get_Thrust(reality: bool): #reality must be boolean True if real data, False
 
 def calc_Tc(measurement_matrix, reality):
     Thrust_matrix = get_Thrust(reality)
-<<<<<<< HEAD
-    Tc = T / (0.5*rho*V**2*inputs.d**2)
-
-    return Tc
-=======
     Tc_array = []
     for i in range(len(measurement_matrix)):
         Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho0*measurement_matrix[i][4]**2*inputs.d**2))
     return Tc_array
->>>>>>> 6d03cea49b88af6aaca4faccb789da7755b70cfe
 
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
