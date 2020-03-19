@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import inputs
 from tools import interpolate
+import itertools
 
 def get_Thrust(reality:bool, nominal:bool, trim:bool):
     fname = "Thrust"
@@ -217,17 +218,37 @@ def elevator_curve(measurement_matrix):
     return Alpha_array, De_array
 
 def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
-    Tcs = np.array(calc_Tc(trim_mat, not ref, True))
-    Tc  = np.array(calc_Tc(trim_mat, not ref, False))
+    Tcs = np.array(calc_Tc(trim_mat, not ref, True, True))
+    Tc  = np.array(calc_Tc(trim_mat, not ref, False, True))
 
     V_e_tilda = V_e_red(trim_mat, ref, tilda=True)
     d_e_star  = de_red(trim_mat, c_md, Tcs, Tc)
 
+    new_x, new_y = zip(*sorted(zip(V_e_tilda, d_e_star)))
+
     plt.figure("Reduced Elevator Deflection Curve")
-    plt.plot(V_e_tilda, d_e_star)
+    plt.plot(new_x, new_y)
+    plt.gca().invert_yaxis()
     plt.xlabel("Reduced Airspeed [m/s]")
-    plt.ylabel("Reduced Elevator Deflection [$^{\cirlce}$]")
+    plt.ylabel("Reduced Elevator Deflection [deg]")
     plt.title("Reduced Elevator Deflection Curve")
+    plt.savefig("figures/red_el_curve.png")
+    plt.show()
+
+def red_force_curve(trim_mat:np.ndarray, ref: bool):
+
+    V_e_tilda = V_e_red(trim_mat, ref, tilda=True)
+    F_e_star  = trim_mat[:,8]*inputs.W_s/trim_mat[:,-1]
+
+    new_x, new_y = zip(*sorted(zip(V_e_tilda, F_e_star)))
+
+
+    plt.figure("Reduced Elevator Control Force Curve")
+    plt.plot(new_x, new_y)
+    plt.gca().invert_yaxis()
+    plt.xlabel("Reduced Airspeed [m/s]")
+    plt.ylabel("Reduced Elevator Control Force [N]")
+    plt.title("Reduced Elevator Control Force Curve")
     plt.savefig("figures/red_el_curve.png")
     plt.show()
 
