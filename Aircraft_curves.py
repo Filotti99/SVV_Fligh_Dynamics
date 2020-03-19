@@ -111,8 +111,8 @@ def calc_CL(measurement_matrix, ref):
 #    return C_D_array
 
 
-def calc_CD_curve(measurement_matrix,reality:bool,nominal:bool):
-    D_array = get_Thrust(reality,nominal)
+def calc_CD_curve(measurement_matrix,reality:bool):
+    D_array = get_Thrust(reality,False)
     CL_array = calc_CL(measurement_matrix,not(reality))
     CD_array = []
     for i in range(len(measurement_matrix)):
@@ -183,7 +183,7 @@ def lift_curve(measurement_matrix, ref):
     plt.show()
     return Alpha_array, C_L_array
 
-def drag_curve(measurement_matrix,reality):
+def drag_curve(measurement_matrix,reality:bool):
     Alpha_array = [row[5] for row in measurement_matrix]
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     plt.plot(Alpha_array, C_D_array)
@@ -230,7 +230,7 @@ def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.nda
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-print(lift_curve(inputs.measurement_matrix_real, False))
+#print(lift_curve(inputs.measurement_matrix_real, False))
 #print(drag_curve(inputs.measurement_matrix_real))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))
