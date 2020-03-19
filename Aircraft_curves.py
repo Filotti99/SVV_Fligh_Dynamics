@@ -18,7 +18,7 @@ def get_Thrust(reality: bool, nominal: bool):
     return Thrust_matrix
 
 def calc_Tc(measurement_matrix, reality:bool, nominal:bool):
-    Thrust_matrix = get_Thrust(reality)
+    Thrust_matrix = get_Thrust(reality,nominal)
     Tc_array = []
     for i in range(len(measurement_matrix)):
         Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho0*measurement_matrix[i][4]**2*inputs.d**2))
@@ -111,8 +111,8 @@ def calc_CL(measurement_matrix, ref):
 #    return C_D_array
 
 
-def calc_CD_curve(measurement_matrix,reality):
-    D_array = get_Thrust(reality)
+def calc_CD_curve(measurement_matrix,reality:bool,nominal:bool):
+    D_array = get_Thrust(reality,nominal)
     CL_array = calc_CL(measurement_matrix,not(reality))
     CD_array = []
     for i in range(len(measurement_matrix)):
