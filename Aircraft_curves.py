@@ -5,17 +5,20 @@ import inputs
 from tools import interpolate
 
 
-def get_Thrust(reality): #reality must be boolean True if real data, False if reference
+def get_Thrust(reality: bool, nominal: bool):
+    fname = "Thrust"
     if reality:
-        fname = "Thrust_reference.dat"
-    else:
-        fname = "Thrust_real.dat"
+        fname += "_real"
+    if nominal:
+        fname += "_nominal"
+    fname += ".dat"
+    
     Thrust_matrix = []
     for row in np.genfromtxt(fname):
         Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
-def calc_Tc(measurement_matrix, reality):
+def calc_Tc(measurement_matrix, reality:bool, nominal:bool):
     Thrust_matrix = get_Thrust(reality)
     Tc_array = []
     for i in range(len(measurement_matrix)):
@@ -62,7 +65,7 @@ def de_red(meas_mat: np.ndarray, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
     if meas_mat.shape[1] < 13:
         return 0
 
-    c_mtc = − 0.0064
+    c_mtc = -0.0064
 
     return meas_mat[:,6] - (c_mtc/c_md)*(Tcs-Tc)
 
@@ -111,7 +114,7 @@ def calc_CL(measurement_matrix, ref):
 
 def calc_CD_curve(measurement_matrix,reality):
     D_array = get_Thrust(reality)
-    CL_array = calc_CL(measurement_matrix)
+    CL_array = calc_CL(measurement_matrix,not(reality))
     CD_array = []
     for i in range(len(measurement_matrix)):
         rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
@@ -119,7 +122,7 @@ def calc_CD_curve(measurement_matrix,reality):
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
 
     e_list = []
-    for i in range(2,len(D_array)-1):
+    for i in range(len(D_array)-1):
         slope = (CD_array[i+1] -CD_array[i]) / ((CL_array[i+1]**2) -(CL_array[i]**2))
         e_list.append((slope*math.pi*inputs.AR)**-1)
     e = np.average(e_list)
@@ -133,11 +136,11 @@ def calc_CD_curve(measurement_matrix,reality):
     CD0 = np.average(CD0_list)
     CD02 = np.average(CD02_list)
 
-    #return e,e2,CD0,CD0_list,CD02,CD02_list,CD_array
-    return e,CD0,CD_array
+    return e,e2,CD0,CD0_list,CD02,CD02_list,CD_array
+#    return e,CD0,CD_array
 
 def drag_polar(measurement_matrix,reality):
-    C_L_array = calc_CL(measurement_matrix)
+    C_L_array = calc_CL(measurement_matrix,not(reality))
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     e = 0.8
     CD0 = 0.04
