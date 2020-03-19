@@ -60,7 +60,8 @@ def calc_CL(measurement_matrix):
     C_L_array = []
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
-        rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        #rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        rho = inputs.rho_0
         C_L = row[10]/(0.5*rho*row[4]**2*inputs.S)
         C_L_array.append(C_L)
     return C_L_array
@@ -82,7 +83,8 @@ def calc_CD_curve(measurement_matrix,reality):
     CL_array = calc_CL(measurement_matrix)
     CD_array = []
     for i in range(len(measurement_matrix)):
-        rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
+        #rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
+        rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*measurement_matrix[i][4]**2*inputs.S))
 
     e_list = []
@@ -176,7 +178,7 @@ def elevator_curve(measurement_matrix):
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real))
-#print(lift_curve(inputs.measurement_matrix_real))
+print(lift_curve(inputs.measurement_matrix_real))
 #print(drag_curve(inputs.measurement_matrix_real))
 #print(calc_CL(inputs.measurement_matrix))
 #print(calc_M(inputs.measurement_matrix_real))

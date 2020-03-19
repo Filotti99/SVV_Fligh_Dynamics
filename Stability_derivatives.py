@@ -38,4 +38,4 @@ def get_Cm_alpha(trim_matr, general_matr, ref_input):
 
 #print(get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True))
 #print(get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True))
-print(get_CL_alpha(inputs.measurement_matrix))
+print(get_CL_alpha(inputs.measurement_matrix_real))
