@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import inputs
 from tools import interpolate
 
-
 def get_Thrust(reality: bool, nominal: bool):
     fname = "Thrust"
     if reality:
