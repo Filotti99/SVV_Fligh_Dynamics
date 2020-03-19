@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 import inputs
 from tools import interpolate
 
-def get_Thrust(reality: bool, nominal: bool):
+def get_Thrust(reality:bool, nominal:bool, trim:bool):
     fname = "Thrust"
+    if trim:
+        fname += "_trim"
     if reality:
         fname += "_real"
     if nominal:
@@ -17,8 +19,8 @@ def get_Thrust(reality: bool, nominal: bool):
         Thrust_matrix.append(sum(row))
     return Thrust_matrix
 
-def calc_Tc(measurement_matrix, reality:bool, nominal:bool):
-    Thrust_matrix = get_Thrust(reality,nominal)
+def calc_Tc(measurement_matrix, reality:bool, nominal:bool, trim:bool):
+    Thrust_matrix = get_Thrust(reality,nominal,trim)
     Tc_array = []
     for i in range(len(measurement_matrix)):
         Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho0*measurement_matrix[i][4]**2*inputs.d**2))
@@ -112,7 +114,7 @@ def calc_CL(measurement_matrix, ref):
 
 
 def calc_CD_curve(measurement_matrix,reality:bool):
-    D_array = get_Thrust(reality,False)
+    D_array = get_Thrust(reality,False,False)
     CL_array = calc_CL(measurement_matrix,not(reality))
     CD_array = []
     for i in range(len(measurement_matrix)):
