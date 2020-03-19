@@ -40,9 +40,9 @@ def calc_M(measurement_matrix):
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
     M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)-1))
-    print("M",M)
     T   = meas_matrix[:,-2]/(1+(inputs.gamma-1)/2*M**2)
     if vtas:
+        print(M*np.sqrt(inputs.gamma*inputs.R*T))
         return M*np.sqrt(inputs.gamma*inputs.R*T)
     V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
 
@@ -66,13 +66,22 @@ def calc_deltaT(measurement_matrix):
 
 def calc_CL(measurement_matrix, ref):
     C_L_array = []
-    V_t_array = V_e_red(measurement_matrix, ref, False) # array with the true airspeed
+    #V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
+    #V_e_red_array = V_e_red(measurement_matrix, ref, True, False) # array with the equivalent reduced airspeed
+    V_t_array = V_e_red(measurement_matrix, ref, False, True) # array with the true airspeed
     counter = 0
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
-        rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        #rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
         #rho = inputs.rho_0
-        C_L = row[10]/(0.5*rho*V_t_array[counter]**2*inputs.S)
+        #C_L = row[10]/(0.5*rho*V_e_array[counter]**2*inputs.S)
+        #print("CL equivalent",C_L)
+        #C_L = row[10] / (0.5 * rho * V_e_red_array[counter] ** 2 * inputs.S)
+        #print("CL reduced", C_L)
+        rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+        C_L = row[10] / (0.5 * rho * V_t_array[counter] ** 2 * inputs.S)
+        #print("CL true",C_L)
+
         C_L_array.append(C_L)
         counter += 1
     return C_L_array
@@ -146,9 +155,9 @@ def drag_polar(measurement_matrix,reality):
 
     return C_L_array, C_D_array
 
-def lift_curve(measurement_matrix):
+def lift_curve(measurement_matrix, ref):
     Alpha_array = [row[5] for row in measurement_matrix]
-    C_L_array = calc_CL(measurement_matrix)
+    C_L_array = calc_CL(measurement_matrix, ref)
     plt.plot(Alpha_array, C_L_array)
     plt.title('Lift coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [degrees]')
