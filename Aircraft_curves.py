@@ -5,7 +5,7 @@ import inputs
 from tools import interpolate
 
 
-def get_Thrust(reality): #reality must be boolean True if real data, False if reference
+def get_Thrust(reality: bool): #reality must be boolean True if real data, False if reference
     if reality:
         fname = "Thrust_reference.dat"
     else:
@@ -18,7 +18,7 @@ def get_Thrust(reality): #reality must be boolean True if real data, False if re
 def calc_Tc(measurement_matrix, reality):
     Thrust_matrix = get_Thrust(reality)
     Tc = T / (0.5*rho*V**2*inputs.d**2)
-    
+
     return Tc
 
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
@@ -194,7 +194,11 @@ def elevator_curve(measurement_matrix):
     plt.show()
     return Alpha_array, De_array
 
-def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
+def red_elevator_curve(meas_mat: np.ndarray, ref: bool, c_md: float):
+
+    Tc = calc_Tc(meas_mat, not ref)
+    Tcs = calc_Tc()
+
     V_e_tilda = V_e_red(meas_mat, ref, tilda=True)
     d_e_star  = de_red(meas_mat, c_md, Tcs, Tc)
 
