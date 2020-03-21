@@ -3,8 +3,6 @@ import control.matlab as ml
 import control as c
 import matplotlib.pyplot as plt
 
-print("start")
-
 #Standard atmosphere
 g = 9.81
 
@@ -32,7 +30,7 @@ D_b = span/V
 D_c = cord/V
 
 mu_b = mass / (density*S*span)
-print(mu_b)
+#print(mu_b)
 mu_c = mass / (density*S*cord)
 Kx = np.sqrt(0.019)
 Ky = np.sqrt(1.25*1.114)
@@ -40,13 +38,14 @@ Kz = np.sqrt(0.042)
 Kxz = 0.002
 
 CL = 2*Weight/(density*V**2*S)
-print(CL)
+#print(CL)
 CD = CD_0 + ((CL_alpha*alpha_0)**2/(np.pi*Aspect_ratio*oswald_factor))
 
-
+### Stability Derivatives ###
 Cx_0 = Weight * np.sin(theta_0)/(0.5*density*V**2*S)
 Cx_q = -0.28170
 Cx_u = -0.095
+
 Cx_alpha = 0.47966
 Cx_alpha_dot = 0.08330
 Cx_delta_e = -0.03728
@@ -86,7 +85,7 @@ Cm_alpha = -0.5626
 Cm_alpha_dot = 0.1780
 Cm_delta_e = -1.1642
 
-
+### Equation of Motion Matrices - V1 (Outdated) ###
 #C1sym = np.matrix([[(-2*mu_c*cord)/(V**2),					0,								0,											0],
 #				   [0,										(Cz_alpha_dot-2*mu_c)*cord/V,		0,											0],
 #				   [0,										0,								-cord/V,									0],
@@ -118,6 +117,7 @@ Cm_delta_e = -1.1642
 #					[Cl_delta_a,							Cl_delta_r],
 #					[Cn_delta_a,							Cn_delta_r]])
 
+### Equation of Motion Matrices - V2 ###
 C1sym = D_c*np.matrix([[-2*mu_c			,						0,								0,											0],
 						[0,										(Cz_alpha_dot-2*mu_c),			0,											0],
 						[0,										0,								-1		,									0],
@@ -153,35 +153,45 @@ Bsym = -np.linalg.inv(C1sym)*C3sym
 
 
 Aasym = -np.linalg.inv(C1asym)*C2asym
-#Aasym[0] = [0,0,0,2/D_b]
-
-
-
-
-print("symmetric: ")
-print("A: ",Asym)
-print("B: ",Bsym)
-print(V/cord)
-
-print("Asymmetric: ")
-print("A: ",Aasym)
+# Aasym[0] = [0,0,0,2/D_b]
 Basym = -np.linalg.inv(C1asym)*C3asym
-print("B: ",Basym)
 
-print(2*V/span)
 
-print("debug: ")
-print("cy_beta_dot = ", Cy_beta_dot)
-print("mu_b = ", mu_b)
-print("Cn_bet_dot = ", Cn_beta_dot)
-print("Kx = ", Kx)
-print("Kz = ", Kz)
-print("Kxz = ", Kxz)
-print("Db = ", D_b)
+def PrintAB(ShouldPrint):
+	'''
+	Can be used to print the A and B matrices of both the symmetric and asymmetric motions
+	:param ShouldPrint: True/False - determines if the matrices will be printed
+	:return: Nothing (it does print stuff though :D )
+	'''
+	if ShouldPrint is True:
+		print("symmetric: ")
+		print("A: ", Asym)
+		print("B: ", Bsym)
+		print(V/cord)
 
-print("C1-1 = ", np.linalg.inv(C1asym))
+		print("Asymmetric: ")
+		print("A: ", Aasym)
+		print("B: ", Basym)
 
-print("C2 = ", C2asym)
+def PrintStabilityDerivatives(ShouldPrint):
+	'''
+	Can be used to print a selection of stability derivatives
+	:param ShouldPrint: if True, the derivatives will be printed
+	:return: None (it does print stuff though :D )
+	'''
+	if ShouldPrint is True:
+		print("debug: ")
+		print("cy_beta_dot = ", Cy_beta_dot)
+		print("mu_b = ", mu_b)
+		print("Cn_bet_dot = ", Cn_beta_dot)
+		print("Kx = ", Kx)
+		print("Kz = ", Kz)
+		print("Kxz = ", Kxz)
+		print("Db = ", D_b)
+
+		print("C1-1 = ", np.linalg.inv(C1asym))
+
+		print("C2 = ", C2asym)
 
 
 Csym = np.matrix(np.identity(4))
@@ -197,65 +207,94 @@ Dasym = np.matrix([[0,0],
 				   [0,0],
 				   [0,0]])
 
-systemSym = ml.ss(Asym,Bsym,Csym,Dsym)
-systemAsym = ml.ss(Aasym,Basym,Casym,Dasym)
+systemSym = ml.ss(Asym, Bsym, Csym, Dsym)
+systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
 
-print("Eigenvalues symmetric case: ",np.linalg.eigvals(systemSym.A))
-print("Eigenvalues asymmetric case: ", np.linalg.eigvals(systemAsym.A))
-Tin = np.arange(0,1000,0.01)
+Tin = np.arange(0,100,0.01)
 Uin = np.zeros_like(Tin)
 Uin[0:100] = np.radians(5)
 
-TSym, ySym, xOut = c.forced_response(systemSym,T = Tin,U=Uin,X0=[0,alpha_0,theta_0,0])
-#print(ySym)
-#ySym, TSym = ml.step(systemSym,X0=[0,alpha_0,theta_0,0],T = Tin)
+TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, alpha_0, theta_0, 0])
+# ySym, TSym = ml.step(systemSym,X0=[0,alpha_0,theta_0,0],T = Tin)
 
 ySym[0] = ySym[0]*u_0 + u_0
 ySym[3] = ySym[3]*(u_0/cord)
 
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
-UinAsym = np.zeros((100000,2))
+UinAsym = np.zeros((10000,2))
 UinAsym[0:50,0] = 0.025#np.radians(5)
-print(UinAsym)
 TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(UinAsym),X0=[0,0,0,0])
 
 yAsym[2] = yAsym[2] * ((2*u_0)/span)
 yAsym[3] = yAsym[3] * ((2*u_0)/span)
-#print(TSym)
 
 
-#plt.figure()
-#plt.plot(TSym,ySym[0])
-#plt.grid(True)
-#plt.ylabel("u")
-#plt.figure()
-#plt.plot(TSym,ySym[1])
-#plt.ylabel("alpha")
-#plt.grid(True)
-#plt.figure()
-#plt.plot(TSym,ySym[2])
-#plt.ylabel("theta")
-#plt.grid(True)
-#plt.figure()
-#plt.plot(TSym,ySym[3])
-#plt.ylabel("q")
-#plt.grid(True)
 
-plt.figure()
-plt.plot(TSym,yAsym[0])
-plt.grid(True)
-plt.ylabel("sideslip")
-plt.figure()
-plt.plot(TSym,yAsym[1])
-plt.ylabel("roll angle")
-plt.grid(True)
-plt.figure()
-plt.plot(TSym,yAsym[2])
-plt.ylabel("roll rate")
-plt.grid(True)
-plt.figure()
-plt.plot(TSym,yAsym[3])
-plt.ylabel("yaw rate")
-plt.grid(True)
+def PrintEigvals(ShouldPrint):
+	'''
+	Can be used to print the eigenvalues of the symmetric and asymmetric systems
+	:param ShouldPrint: if True, the eigenvalues will be printed
+	:return: None (it does print stuff though :D )
+	'''
+	if ShouldPrint is True:
+		print("Eigenvalues symmetric case: \n", np.linalg.eigvals(systemSym.A))
+		print("Eigenvalues asymmetric case: \n", np.linalg.eigvals(systemAsym.A))
 
+
+def PlotSym(ShouldPlot):
+	'''
+	Can be used to plot the response of the symmetric system to a disturbance
+	:param ShouldPlot: if True, will plot the response
+	:return: None (it does plot stuff though :D )
+	'''
+	if ShouldPlot is True:
+		plt.figure()
+		plt.subplot(2, 2, 1)
+		plt.plot(TSym, ySym[0])
+		plt.grid()
+		plt.ylabel("u")
+		plt.subplot(2, 2, 2)
+		plt.plot(TSym, ySym[1])
+		plt.grid()
+		plt.ylabel("alpha")
+		plt.subplot(2, 2, 3)
+		plt.plot(TSym, ySym[2])
+		plt.grid()
+		plt.ylabel("theta")
+		plt.subplot(2, 2, 4)
+		plt.plot(TSym, ySym[3])
+		plt.grid()
+		plt.ylabel("q")
+
+
+def PlotAsym(ShouldPlot):
+	'''
+	Can be used to plot the response of the symmetric system to a disturbance
+	:param ShouldPlot: if True, will plot the response
+	:return: None (it does plot stuff though :D )
+	'''
+	if ShouldPlot is True:
+		plt.figure()
+		plt.subplot(2, 2, 1)
+		plt.plot(TSym, yAsym[0])
+		plt.grid()
+		plt.ylabel("sideslip")
+		plt.subplot(2, 2, 2)
+		plt.plot(TSym, yAsym[1])
+		plt.grid()
+		plt.ylabel("roll angle")
+		plt.subplot(2, 2, 3)
+		plt.plot(TSym, yAsym[2])
+		plt.grid()
+		plt.ylabel("roll rate")
+		plt.subplot(2, 2, 4)
+		plt.plot(TSym, yAsym[3])
+		plt.grid()
+		plt.ylabel("yaw rate")
+
+PrintAB(False)
+PrintStabilityDerivatives(False)
+PrintEigvals(True)
+PlotSym(True)
+PlotAsym(True)
 plt.show()
