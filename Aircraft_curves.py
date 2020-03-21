@@ -82,6 +82,7 @@ def calc_deltaT(measurement_matrix):
 
 def calc_CL(measurement_matrix, ref):
     C_L_array = []
+    C_L_other = []
     V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
     V_t_array = V_e_red(measurement_matrix, ref, False, True) # array with the true airspeed
     counter = 0
@@ -89,11 +90,12 @@ def calc_CL(measurement_matrix, ref):
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         rho = inputs.rho_0
         C_L = row[10]/(0.5*rho*V_e_array[counter]**2*inputs.S)
-        #rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
-        #C_L = row[10] / (0.5 * rho * V_t_array[counter] ** 2 * inputs.S)
         C_L_array.append(C_L)
+       # rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
+       # C_L = row[10] / (0.5 * rho * V_t_array[counter] ** 2 * inputs.S)
+       # C_L_other.append(C_L)
         counter += 1
-    return C_L_array
+    return C_L_array#, C_L_other
 
 def calc_CD_curve(measurement_matrix,reality, ref):
     D_array = get_Thrust(reality,False,False)
@@ -184,6 +186,8 @@ def elevator_curve(measurement_matrix):
     Alpha_array = [row[0] for row in ordered_array]
     De_array = [row[1] for row in ordered_array]
     plt.plot(Alpha_array, De_array)
+    plt.xlabel("Angle of attack [degrees]")
+    plt.ylabel("Elevator deflection [rad]")
     plt.title('Elevator trim curve')
     plt.show()
     return Alpha_array, De_array
@@ -207,8 +211,9 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
 
 #elevator_curve(inputs.trim_matrix)
 #print(drag_polar(inputs.measurement_matrix_real, True, False))
-print(lift_curve(inputs.measurement_matrix, False))
+#print(lift_curve(inputs.measurement_matrix, False))
 #print(drag_curve(inputs.measurement_matrix_real, True, False))
-#print(calc_CL(inputs.measurement_matrix))
+#print(calc_CL(inputs.measurement_matrix_real, False))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
+#print(elevator_curve(inputs.measurement_matrix_real))
