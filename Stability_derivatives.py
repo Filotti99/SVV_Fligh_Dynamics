@@ -29,7 +29,7 @@ def get_Cm_delta(trim_matr, general_matr, ref_input):
             missing += 1
     return np.sum(Cm_delta_list)/(len(Cm_delta_list)-missing)
 
-def get_Cm_delta_new(delta_matr, general_matr, ref_input):
+def get_Cm_delta_new(delta_matr, ref_input):
     CN_list = Aircraft_curves.calc_CL(delta_matr, ref_input) # C_N approximated as C_L
     c_bar = inputs.c_bar
     delta_x_cg = cgLocation.deltaCg(delta_matr[1][11], delta_matr[0][11], ref=ref_input)
@@ -37,20 +37,21 @@ def get_Cm_delta_new(delta_matr, general_matr, ref_input):
     Cm_delta = (-1 / delta_e) * np.average(CN_list) * (delta_x_cg / c_bar)
     return Cm_delta
 
-def get_Cm_alpha(trim_matr, general_matr, ref_input):
-    Cm_delta = get_Cm_delta(trim_matr, general_matr, ref_input)
+def get_Cm_alpha(trim_matr, delta_matr, ref_input):
+    Cm_delta = get_Cm_delta_new(delta_matr, ref_input)
     alpha, delta = Aircraft_curves.elevator_curve(trim_matr)
     d_delta_d_alpha = (delta[-1]-delta[0])/(alpha[-1]-alpha[0])
     Cm_alpha = -d_delta_d_alpha*Cm_delta
     return Cm_alpha
 
 # Based on reference data
-#print("Cm_delta =",get_Cm_delta(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
-#print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix, inputs.measurement_matrix, True)*180/math.pi)
+#print("Cm_delta =",get_Cm_delta(inputs.trim_matrix, True)*180/math.pi)
+print("Cm_delta =",get_Cm_delta_new(inputs.delta_matrix, True)*180/math.pi)
+#print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix, inputs.delta_matrix, True)*180/math.pi)
 #print("CL_alpha =",get_CL_alpha(inputs.measurement_matrix, True)*180/math.pi)
 
 # Based on real flight test data
-#print("Cm_delta =",get_Cm_delta(inputs.trim_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
-print("Cm_delta =",get_Cm_delta_new(inputs.delta_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
-#print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
+#print("Cm_delta =",get_Cm_delta(inputs.trim_matrix_real, False)*180/math.pi)
+#print("Cm_delta =",get_Cm_delta_new(inputs.delta_matrix_real, False)*180/math.pi)
+#print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix_real, inputs.delta_matrix_real, False)*180/math.pi)
 #print("CL_alpha =",get_CL_alpha(inputs.measurement_matrix_real, False)*180/math.pi)

@@ -50,13 +50,16 @@ delta_matrix_real = np.c_[np.array(delta_matrix_real),np.array(W_delta_matrix_re
 trim_matrix = np.array([[1, 2239, 0, 6060, 161, 5.3, 0, 2.8, 0, 462, 486, 664, 5.5], [2, 2351, 0, 6350, 150, 6.3, -0.4, 2.8, -23, 458, 482, 694, 4.5], [3, 2484, 0, 6550, 140, 7.3, -0.9, 2.8, -29, 454, 477, 730, 3.5], [4, 2576, 0, 6880, 130, 8.5, -1.5, 2.8, -46, 449, 473, 755, 2.5], [5, 2741, 0, 6160, 173, 4.5, 0.4, 2.8, 26, 465, 489, 798, 5.0], [6, 2840, 0, 5810, 179, 4.1, 0.6, 2.8, 40, 472, 496, 825, 6.2], [7, 2920, 0, 5310, 192, 3.4, 1.0, 2.8, 83, 482, 505, 846, 8.2]])
 # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
 measurement_matrix = np.array([[1,30, 2000, 5010, 249, 1.7, 798, 813, 360, 12.5],[2,2137, 2000, 5020, 221, 2.4, 633, 682, 412, 10.5],[3,2436, 2000, 5020, 192, 3.6, 561, 579, 447, 8.8],[4,2604, 2000, 5030, 163, 5.4, 463, 484, 478, 7.2],[5,2947, 2000, 5020, 130, 8.7, 443, 467, 532, 6],[6,3200, 2000, 5110, 118, 10.6, 474, 499, 570, 5.2] ])
+delta_matrix = np.array([[1, 3062, 0, 5730, 161, 5.3, 0, 2.8, 0, 471, 493, 881, 5.0], [2, 3166, 0, 5790, 161, 5.3, -0.5, 2.8, -30, 468, 490, 910, 5.0]])
 W_passenger = (95 +92 +74 +66 +61 +75 +78 +86 +68) * g_0
 w_fuel = 4050*lbs*g_0
 W0 = w_oew + W_passenger + w_fuel
 W_matrix = W0 - lbs*g_0*measurement_matrix[:,-2]
 W_trim_matrix = W0 - lbs*g_0*trim_matrix[:,-2]
+W_delta_matrix = W0_real - lbs*g_0*delta_matrix[:,-2]
 measurement_matrix = np.c_[np.array(measurement_matrix),np.array(W_matrix)] #appends weight at each point to measurement matrix
 trim_matrix = np.c_[np.array(trim_matrix),np.array(W_trim_matrix)]
+delta_matrix = np.c_[np.array(delta_matrix),np.array(W_delta_matrix)]
 
 
 # Adjustments of the measurement matrices to correct units
@@ -69,3 +72,4 @@ measurement_matrix_real = convert(measurement_matrix_real)
 trim_matrix = convert(trim_matrix)
 trim_matrix_real = convert(trim_matrix_real)
 delta_matrix_real = convert(delta_matrix_real)
+delta_matrix = convert(delta_matrix)
