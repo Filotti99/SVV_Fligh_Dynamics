@@ -34,6 +34,7 @@ w_oew = 9165.0*lbs*g_0
 # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT
 measurement_matrix_real = np.array([[3,1682, 0, 18020, 222, 2.0, 608, 668, 634, -4.8],[4,1800, 0, 17990, 200, 2.9, 508, 548, 665, -6.8],[5,1890, 0, 18000, 182, 3.6, 453, 488, 688, -8.2],[1,1358, 0, 18000, 161, 5.0, 392, 450, 538, -9.5],[2,1520, 0, 17990, 131, 8.1, 369, 378, 569, -11.5],[6,2115, 0, 18010, 114, 10.7, 431, 480, 729, -12.8] ])
 trim_matrix_real = np.array([[3, 2640, 0, 18940, 134, 7.5, -1.2, 2.5, -31, 404, 455, 865, -13.5], [2, 2520, 0, 18360, 147, 6.3, -0.7, 2.5, -14, 407, 466, 840, -11.5], [1, 2400, 0, 18060, 156, 5.2, -0.3, 2.5, 1, 409, 470, 811, -10.2], [7, 2940, 0, 18360, 156, 5.2, -0.2, 2.5, 1, 480, 469, 940, -11.2], [4, 2700, 0, 18350, 168, 4.4, 0.1, 2.5, 26, 410, 471, 888, -10.5], [5, 2760, 0, 18090, 176, 3.8, 0.4, 2.5, 50, 416, 448, 901, -9.5], [6, 2820, 0, 17680, 186, 3.3, 0.7, 2.5, 83, 420, 484, 912, -7.8]])
+delta_matrix_real = np.array([[1, 2940, 0, 18360, 156, 5.2, -0.2, 2.5, 1, 480, 469, 940, -11.2], [2, 3120, 0, 18550, 156, 5.2, -0.8, 2.5, -28, 400, 460, 989, -11.2]])
 W_passenger_real = (95 +102 +89 +82 +66 +81 +69 +85 +96) * g_0
 w_fuel_real     = 2640*lbs*g_0
 W0_real = w_oew + W_passenger_real + w_fuel_real
@@ -41,6 +42,8 @@ W_matrix_real = W0_real - lbs*g_0*measurement_matrix_real[:,-2]
 W_trim_matrix_real = W0_real - lbs*g_0*trim_matrix_real[:,-2]
 measurement_matrix_real = np.c_[np.array(measurement_matrix_real),np.array(W_matrix_real)]#appends weight at each point to measurement matrix
 trim_matrix_real = np.c_[np.array(trim_matrix_real),np.array(W_trim_matrix_real)]
+W_delta_matrix_real = W0_real - lbs*g_0*delta_matrix_real[:,-2]
+delta_matrix_real = np.c_[np.array(delta_matrix_real),np.array(W_delta_matrix_real)]
 
 # Reference data
 # nr, time, ET, altitude, IAS, alpha, de, detr, Fe, FFl, FFr, Fused, TAT
@@ -65,3 +68,4 @@ measurement_matrix = convert(measurement_matrix)
 measurement_matrix_real = convert(measurement_matrix_real)
 trim_matrix = convert(trim_matrix)
 trim_matrix_real = convert(trim_matrix_real)
+delta_matrix_real = convert(delta_matrix_real)

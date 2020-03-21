@@ -89,7 +89,7 @@ def calc_CL(measurement_matrix, ref):
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
         rho = inputs.rho_0
-        C_L = row[10]/(0.5*rho*V_e_array[counter]**2*inputs.S)
+        C_L = row[-1]/(0.5*rho*V_e_array[counter]**2*inputs.S)
         C_L_array.append(C_L)
        # rho = (inputs.p_0*(1+(inputs.a_layer*row[3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*row[9]) # change to ISA equation
        # C_L = row[10] / (0.5 * rho * V_t_array[counter] ** 2 * inputs.S)

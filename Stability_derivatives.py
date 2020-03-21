@@ -27,8 +27,15 @@ def get_Cm_delta(trim_matr, general_matr, ref_input):
             Cm_delta_list.append(Cm_delta_temp)
         else:
             missing += 1
-    print('hello',Cm_delta_list)
     return np.sum(Cm_delta_list)/(len(Cm_delta_list)-missing)
+
+def get_Cm_delta_new(delta_matr, general_matr, ref_input):
+    CN_list = Aircraft_curves.calc_CL(delta_matr, ref_input) # C_N approximated as C_L
+    c_bar = inputs.c_bar
+    delta_x_cg = cgLocation.deltaCg(delta_matr[1][11], delta_matr[0][11], ref=ref_input)
+    delta_e = delta_matr[1][6] - delta_matr[0][6]
+    Cm_delta = (-1 / delta_e) * np.average(CN_list) * (delta_x_cg / c_bar)
+    return Cm_delta
 
 def get_Cm_alpha(trim_matr, general_matr, ref_input):
     Cm_delta = get_Cm_delta(trim_matr, general_matr, ref_input)
@@ -43,6 +50,7 @@ def get_Cm_alpha(trim_matr, general_matr, ref_input):
 #print("CL_alpha =",get_CL_alpha(inputs.measurement_matrix, True)*180/math.pi)
 
 # Based on real flight test data
-print("Cm_delta =",get_Cm_delta(inputs.trim_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
-print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
+#print("Cm_delta =",get_Cm_delta(inputs.trim_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
+print("Cm_delta =",get_Cm_delta_new(inputs.delta_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
+#print("Cm_alpha =",get_Cm_alpha(inputs.trim_matrix_real, inputs.measurement_matrix_real, False)*180/math.pi)
 #print("CL_alpha =",get_CL_alpha(inputs.measurement_matrix_real, False)*180/math.pi)
