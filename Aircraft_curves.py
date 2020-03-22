@@ -5,7 +5,7 @@ import inputs
 from tools import interpolate
 from scipy import stats
 
-def almost_equal(a, b, percentage=1):
+def almost_equal(a, b, percentage=1, return_value=False):
     """
     Tests if two floating point numbers are almost equal by comparing their percentual difference against a
     set value. Default significance is 1%.
@@ -15,6 +15,8 @@ def almost_equal(a, b, percentage=1):
     :raises: error when difference falls outside bounds
     """
     assert 100*abs(a-b)/(0.5*(a+b)) <= percentage
+    if return_value:
+        return 100*abs(a-b)/(0.5*(a+b))
 
 
 def get_Thrust(reality:bool, nominal:bool, trim:bool):
@@ -317,5 +319,14 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
 
 # Unit tests performed if you run this file
 
-if __name__ == 'main':
-    pass
+
+if __name__ == '__main__':
+    """
+    calcM test 1
+    At ISA 0ft values, a list of M values is given V values
+    https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
+    """
+    x = np.array([[0,0,0,0,100,0,0,0,0,288.15], [0,0,0,0,200,0,0,0,0,288.15]])
+    y = [100/math.sqrt(1.401*287.057*288.15), 200/math.sqrt(1.401*287.057*288.15)]
+    for i in range(len(y)):
+        almost_equal(calc_M(x)[i], y[i], 1.0)
