@@ -223,6 +223,7 @@ ySym[3] = ySym[3]*(u_0 / chord)
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
 UinAsym = np.zeros((2000,2))
 UinAsym[0:100,0] = np.radians(10)
+UinAsym[101:200, 0] = np.radians(-10)
 
 TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(UinAsym),X0=[0,0,0,0])
 
