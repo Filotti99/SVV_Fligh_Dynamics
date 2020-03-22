@@ -293,8 +293,8 @@ def elevator_curve_alpha(measurement_matrix):
     return Alpha_array, De_array
 
 def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
-    Tcs = np.array(calc_Tc(trim_mat, not ref, True))
-    Tc  = np.array(calc_Tc(trim_mat, not ref, False))
+    Tcs = np.array(calc_Tc(trim_mat, not ref, True, True))
+    Tc  = np.array(calc_Tc(trim_mat, not ref, False, True))
 
     V_e_tilda = V_e_red(trim_mat, ref, tilda=True)
     d_e_star  = de_red(trim_mat, c_md, Tcs, Tc)
@@ -302,10 +302,30 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
     plt.figure("Reduced Elevator Deflection Curve")
     plt.plot(V_e_tilda, d_e_star)
     plt.xlabel("Reduced Airspeed [m/s]")
-    plt.ylabel("Reduced Elevator Deflection [$^{\cirlce}$]")
+    plt.ylabel("Reduced Elevator Deflection [deg]")
+    plt.gca().invert_yaxis()
     plt.title("Reduced Elevator Deflection Curve")
     plt.savefig("figures/red_el_curve.png")
     plt.show()
+
+def red_force_curve(trim_mat:np.ndarray, ref: bool):
+
+    V_e_tilda = V_e_red(trim_mat, ref, tilda=True)
+    F_e_star  = trim_mat[:,8]*inputs.W_s/trim_mat[:,-1]
+
+    sorted_F = F_e_star[V_e_tilda.argsort(axis=0)]
+    sorted_V = V_e_red(trim_mat, ref, tilda=True)
+    sorted_V.sort()
+
+    plt.figure("Reduced Elevator Deflection Curve")
+    plt.plot(sorted_V,sorted_F)
+    plt.xlabel("Reduced Airspeed [m/s]")
+    plt.ylabel("Reduced Elevator Control Force [N]")
+    plt.gca().invert_yaxis()
+    plt.title("Reduced Elevator Control Force Curve")
+    plt.savefig("figures/red_force_curve.png")
+    plt.show()
+    pass
 
 # Test functions (commented to prevent plots from being spammed when running the file)
 
