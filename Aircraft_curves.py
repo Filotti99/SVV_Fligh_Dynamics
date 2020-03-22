@@ -359,9 +359,18 @@ if __name__ == '__main__':
 
     """
     calcCL Test 1
-    Calculates CL for standard values, also tests V_e_red
+    Calculates CL for standard values, 0 altitude is taken to not confound with V_red test
     """
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
     y = [1000/(0.5*1.225*100*100*30), 10000/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
         almost_equal_perc(calc_CL(x, True)[i], y[i], 0.1)
+
+    """
+    calcCD_curve Test 1
+    Calculates CD for standard values, 0 altitude is taken to not confound with V_red test
+    """
+    x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
+    y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
+    for i in range(len(x)):
+        almost_equal_perc(calc_CD_curve(x, True, False)[2][i], y[i], 0.1, True)
