@@ -374,3 +374,12 @@ if __name__ == '__main__':
     y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
         almost_equal_perc(calc_CD_curve(x, True, False)[2][i], y[i], 0.1, True)
+
+    # Functions that still require unit tests
+    # getThrust
+    # calcTc
+    # calcW
+    # V_e_red
+    # de_red
+    # dragpolar (once the least squares solution is fixed)
+    # elevator_curve_alpha
