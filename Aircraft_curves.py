@@ -350,9 +350,18 @@ if __name__ == '__main__':
     """
     calcdeltaT Test 1
     Difference between T_ISA equation and ISA from online sources should be small
-    https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
+    https://www.digitaldutch.com/atmoscalc/
     """
     x = np.array([[0,0,0,0,0,0,0,0,0,288.15], [0,0,0,1000,0,0,0,0,0,281.650], [0,0,0,10000,0,0,0,0,0,223.150]])
     y = [0, 0, 0]
     for i in range(len(x)):
         almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2))
+
+    """
+    calcCL Test 1
+    Calculates CL for standard values, also tests V_e_red
+    """
+    x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
+    y = [1000/(0.5*1.225*100*100*30), 10000/(0.5*1.225*50*50*30)]
+    for i in range(len(x)):
+        almost_equal_perc(calc_CL(x, True)[i], y[i], 0.1)
