@@ -226,7 +226,7 @@ def lift_curve(measurement_matrix, ref):
     plt.plot(Alpha_array, C_L_array)
     plt.title('Lift coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [degrees]')
-    plt.ylabel('Lift coefficient [-]')
+    plt.ylabel('Lift coefficient[-]')
     plt.show()
     return Alpha_array, C_L_array
 
