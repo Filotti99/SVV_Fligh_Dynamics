@@ -49,7 +49,7 @@ def deltaCg(w_f1,w_f0, a = False, ref = False):
         m_f0 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel_ref-w_f0)
         m_f1 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel_ref-w_f1)
         l_p0 = np.array([131,131,214,214,251,251,288,288,170])*inc
-        l_p1 = np.array([131,131,214,214,251,251,288,134,170])*inc
+        l_p1 = np.array([131,131,214,214,251,251,134,288,170])*inc # used to be 288, 134
         m_p0 = l_p0*w_pass_ref
         m_p1 = l_p1*w_pass_ref
 
