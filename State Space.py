@@ -3,31 +3,59 @@ import control.matlab as ml
 import control as c
 import matplotlib.pyplot as plt
 import cmath
+import math
+
+
+#Unit conversions
+def kts2mps(vInKts):
+	return 0.514444 * vInKts
+
+def deg2rad(angleInDeg):
+	return np.radians(angleInDeg)
+
+def lbs2Kg(weightInLbs):
+	return 0.453592 * weightInLbs
+
+def celsius2K(tempInCelsius):
+	return tempInCelsius + 273.15
+
+
 #Standard atmosphere
-g = 9.81
-
-
-####INPUTS, Change before use
-V = 250
-u_0= V
-mass = 18200
-Weight = mass*g
-density  = 1.225
-
-#Using reference values
-oswald_factor = 0.8
-CD_0 = 0.04
-CL_alpha = 5.084
-alpha_0 = 0
-theta_0 = 0
+g = 9.80665
+T0 = 288.15
+a = -0.0065
+rho_0 = 1.225
+R = 287
+m0 = 5832.05389
 
 span = 15.911
 chord = 2.0569
 S = 30.00
 Aspect_ratio = span**2/S
 
+
+fuelUsed = lbs2Kg(554.57)
+####INPUTS, Change before use
+V = kts2mps(211.01)
+u_0= V
+mass = m0-fuelUsed
+Weight = mass*g
+T = celsius2K(-17)
+density  = rho_0*(T/T0)**(-(g/(a*R))-1)
+
 D_b = span/V
 D_c = chord / V
+
+
+#Using reference values
+oswald_factor = 0.8
+CD_0 = 0.04
+CL_alpha = 5.084
+alpha_0 = deg2rad(5.1044)
+theta_0 = deg2rad(4.0759)
+q_0 = deg2rad(-0.05094)* chord/V
+
+
 
 mu_b = mass / (density*S*span)
 #print(mu_b)
@@ -210,18 +238,30 @@ Dasym = np.matrix([[0,0],
 systemSym = ml.ss(Asym, Bsym, Csym, Dsym)
 systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
 
-Tin = np.arange(0,20,0.01)
+Tin = np.arange(0,300,0.1)
 Uin = np.zeros_like(Tin)
 Uin[0:100] = np.radians(10)
 
-TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, alpha_0, theta_0, 0])
+print("HERE")
+elevator = open(r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\Deflection_of_elevator[deg].csv","r")
+lines = np.array(elevator.readlines())
+elevator.close()
+
+elevatorInputs = np.genfromtxt(lines)
+
+Uin = deg2rad(elevatorInputs[31800:34800])
+
+print(len(Tin),len(Uin))
+
+
+TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, alpha_0, theta_0, q_0])
 # ySym, TSym = ml.step(systemSym,X0=[0,alpha_0,theta_0,0],T = Tin)
 
 ySym[0] = ySym[0]*u_0 + u_0
 ySym[3] = ySym[3]*(u_0 / chord)
 
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
-UinAsym = np.zeros((2000,2))
+UinAsym = np.zeros((3000,2))
 UinAsym[0:100,0] = np.radians(10)
 UinAsym[101:200, 0] = np.radians(-10)
 
@@ -294,6 +334,35 @@ def PlotAsym(ShouldPlot):
 		plt.grid()
 		plt.ylabel("yaw rate")
 
+
+def PlotFlightData(t_min, t_max, *filenames):
+	t = []
+	with open(r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+		i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
+		t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
+		for t_point in t_data.readlines():
+			t.append(float(t_point.strip()) - t_0 - t_min/10 + (i%10)/10)
+			i += 1
+			#print(t[-1])
+
+	size1 = math.ceil(math.sqrt(len(filenames)))
+	size2 = round(math.sqrt(len(filenames)))
+	index = 0
+	plt.figure()
+	for filename in filenames:
+		index += 1
+		with open(r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\" + filename + ".csv") as file:
+			y = []
+			for data_point in file.readlines():
+				y.append(float(data_point.strip()))
+			plt.subplot(size1, size2, index)
+			plt.grid(True)
+			plt.plot(t[t_min:t_max], y[t_min:t_max])
+			plt.ylabel(filename)
+			plt.xlabel('Time Since Begin Observation [sec]')
+    #plt.show()
+
+PlotFlightData(31800, 34800, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
 PrintAB(False)
 PrintStabilityDerivatives(False)
 PrintEigvals(True)
@@ -363,13 +432,15 @@ def DutchRollMotionAndAperiodicRollingMotion():
 	print("Lambda3: ", Lambda3)
 	print()
 
+
+
+
+
 ShortPeriodOscillation()
 PhugoidMotion()
 HeavilyDampedAperiodicRollingMotion()
 DutchRollMotion()
 AperiodicSpiralMotion()
 DutchRollMotionAndAperiodicRollingMotion()
-
-
 
 
