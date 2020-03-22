@@ -5,6 +5,18 @@ import inputs
 from tools import interpolate
 from scipy import stats
 
+def almost_equal(a, b, percentage=1):
+    """
+    Tests if two floating point numbers are almost equal by comparing their percentual difference against a
+    set value. Default significance is 1%.
+
+    :param a, b: Floating point numbers to compare
+    :param percentage = Maximum allowed difference in percentage
+    :raises: error when difference falls outside bounds
+    """
+    assert 100*abs(a-b)/(0.5*(a+b)) <= percentage
+
+
 def get_Thrust(reality:bool, nominal:bool, trim:bool):
     fname = "Thrust"
     if trim:
@@ -302,3 +314,8 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
 # print(lift_curve(inputs.measurement_matrix_real, ref = False))
 # print(drag_curve(inputs.measurement_matrix_real, reality = True))
 # print(elevator_curve_alpha(inputs.measurement_matrix_real))
+
+# Unit tests performed if you run this file
+
+if __name__ == 'main':
+    pass
