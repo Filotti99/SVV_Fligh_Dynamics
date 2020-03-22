@@ -27,6 +27,7 @@ def calc_Tc(measurement_matrix, reality:bool, nominal:bool, trim:bool):
         Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho_0*measurement_matrix[i][4]**2*inputs.d**2))
     return Tc_array
 
+
 def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
     path = "cg_data/pass_w_ref.dat" if ref else "cg_data/pass_w.dat"
@@ -36,18 +37,21 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
-#def calc_e(): #old version, use calc_CD_curve
-#    Clalpha = 2*math.pi*inputs.AR/(2+math.sqrt(4+inputs.AR**2))
-#    CLalpha = Clalpha*(inputs.AR/(inputs.AR+2))
-#    e = CLalpha/Clalpha
-#    return e
 
 def calc_M(measurement_matrix):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+
+     Outputs:
+      - An array with the Mach number at each measurement point (= row) of the matrix
+    '''
     M_array = []
     for row in measurement_matrix:
         M = row[4]/math.sqrt(inputs.gamma*inputs.R*row[9])
         M_array.append(M)
     return M_array
+
 
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
@@ -63,16 +67,24 @@ def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
 
     return V*np.sqrt(inputs.W_s/meas_matrix[:,-1]) if tilda else V
 
+
 def de_red(meas_mat: np.ndarray, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
     if meas_mat.shape[1] < 13:
         return 0
 
     c_mtc = -0.0064
 
-    return meas_mat[:,6] - (c_mtc/c_md)*(Tcs-Tc)
+    return meas_mat[:, 6] - (c_mtc/c_md)*(Tcs-Tc)
 
 
 def calc_deltaT(measurement_matrix):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+
+     Outputs:
+      - An array with the temperature differential with ISA at each measurement point (= row) of the matrix
+    '''
     deltaT_array = []
     for row in measurement_matrix:
         T_ISA = inputs.T_0 + (row[3]*inputs.a_layer)
@@ -80,11 +92,23 @@ def calc_deltaT(measurement_matrix):
         deltaT_array.append(T_delta)
     return deltaT_array
 
+
 def calc_CL(measurement_matrix, ref):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+     - ref = a bool that is true if the reference data is used and false if the flight test data is used
+
+     Outputs:
+      - An array with the C_L at each measurement point (= row) of the matrix
+
+      Note:
+      - An option to use rho at altitude and V_t is left in the code, but is put in comments for now
+    '''
     C_L_array = []
     C_L_other = []
-    V_e_array = V_e_red(measurement_matrix, ref, False, False) # array with the equivalent airspeed
-    V_t_array = V_e_red(measurement_matrix, ref, False, True) # array with the true airspeed
+    V_e_array = V_e_red(measurement_matrix, ref, False, False)  # array with the equivalent airspeed
+    V_t_array = V_e_red(measurement_matrix, ref, False, True)  # array with the true airspeed
     counter = 0
     for row in measurement_matrix:
         # nr, time, ET, altitude, IAS, alpha, FFl, FFr, Fused, TAT, W
@@ -97,14 +121,24 @@ def calc_CL(measurement_matrix, ref):
         counter += 1
     return C_L_array#, C_L_other
 
-def calc_CD_curve(measurement_matrix,reality, ref):
-    D_array = get_Thrust(reality,False,False)
+def calc_CD_curve(measurement_matrix, reality, ref):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+     - reality = a bool that is true if the flight test data is used and false if the reference data is used
+     - ref = a bool that is true if the reference data is used and false if the flight test data is used
+
+     Outputs:
+      - The estimated value of 'e'
+      - The estimated value of C_D0
+      - An array with the C_D at each measurement point (= row) of the matrix
+    '''
+    D_array = get_Thrust(reality, False, False)
     CL_array = calc_CL(measurement_matrix, not reality)
-    V_e_array = V_e_red(measurement_matrix, not reality, False, False) # array with the equivalent airspeed
+    V_e_array = V_e_red(measurement_matrix, not reality, False, False)
     CD_array = []
     CL2_array = []
     for i in range(len(measurement_matrix)):
-        #rho = (inputs.p_0*(1+(inputs.a_layer*measurement_matrix[i][3]/inputs.T_0))**(-inputs.g_0/(inputs.a_layer*inputs.R)))/(inputs.R*measurement_matrix[i][9])
         rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
         CL2_array.append(CL_array[i]**2)
@@ -115,8 +149,18 @@ def calc_CD_curve(measurement_matrix,reality, ref):
     return e,CD0,CD_array
 
 def drag_polar(measurement_matrix,reality):
-    C_L_array = calc_CL(measurement_matrix,not reality)
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+     - reality = a bool that is true if the flight test data is used and false if the reference data is used
+
+     Outputs:
+      - A plot of the C_L values on the x-axis an the C_D values on the y-axis (not returned)
+      - Returns an array with the C_L at each measurement point (= row) of the matrix
+      - Returns an array with the C_D at each measurement point (= row) of the matrix
+    '''
+    C_L_array = calc_CL(measurement_matrix, not reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality, not reality)
     e = 0.8
     CD0 = 0.04
     C_D_calculated = []
@@ -150,6 +194,16 @@ def drag_polar(measurement_matrix,reality):
     return C_L_array, C_D_array
 
 def lift_curve(measurement_matrix, ref):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+     - ref = a bool that is true if the reference data is used and false if the flight test data is used
+
+     Outputs:
+      - A plot of the alpha values on the x-axis an the C_L values on the y-axis (not returned)
+      - Returns an array with the alpha at each measurement point (= row) of the matrix
+      - Returns an array with the C_L at each measurement point (= row) of the matrix
+    '''
     Alpha_array = [row[5] for row in measurement_matrix]
     C_L_array = calc_CL(measurement_matrix, ref)
     plt.plot(Alpha_array, C_L_array)
@@ -159,9 +213,20 @@ def lift_curve(measurement_matrix, ref):
     plt.show()
     return Alpha_array, C_L_array
 
-def drag_curve(measurement_matrix,reality):
+
+def drag_curve(measurement_matrix, reality):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+     - reality = a bool that is true if the flight test data is used and false if the reference data is used
+
+     Outputs:
+      - A plot of the alpha values on the x-axis an the C_D values on the y-axis (not returned)
+      - Returns an array with the alpha at each measurement point (= row) of the matrix
+      - Returns an array with the C_D at each measurement point (= row) of the matrix
+    '''
     Alpha_array = [row[5] for row in measurement_matrix]
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality, not reality)
     plt.plot(Alpha_array, C_D_array)
     plt.title('Drag coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [deg]')
@@ -169,7 +234,16 @@ def drag_curve(measurement_matrix,reality):
     plt.show()
     return Alpha_array, C_D_array
 
-def elevator_curve(measurement_matrix):
+def elevator_curve_alpha(measurement_matrix):
+    '''
+    Inputs:
+     - measurement_matrix = a matrix of the inputs file
+
+     Outputs:
+      - A plot of the alpha values on the x-axis an the elevator deflection values on the y-axis (not returned)
+      - Returns an array with the alpha at each measurement point (= row) of the matrix
+      - Returns an array with the elevator deflection at each measurement point (= row) of the matrix
+    '''
     Combined_array = [[row[5],row[6]] for row in measurement_matrix]
     ordered_array = []
     for i in range(len(Combined_array)):
@@ -207,13 +281,12 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
     plt.savefig("figures/red_el_curve.png")
     plt.show()
 
+# Test functions (commented to prevent plots from being spammed when running the file)
 
-
-#elevator_curve(inputs.trim_matrix)
-#print(drag_polar(inputs.measurement_matrix_real, True, False))
+#print(drag_polar(inputs.measurement_matrix_real, True))
 #print(lift_curve(inputs.measurement_matrix, False))
-#print(drag_curve(inputs.measurement_matrix_real, True, False))
+#print(drag_curve(inputs.measurement_matrix_real, True))
 #print(calc_CL(inputs.measurement_matrix_real, False))
 #print(calc_M(inputs.measurement_matrix_real))
 #print(calc_deltaT(inputs.measurement_matrix_real))
-#print(elevator_curve(inputs.measurement_matrix_real))
+#print(elevator_curve_alpha(inputs.measurement_matrix_real))
