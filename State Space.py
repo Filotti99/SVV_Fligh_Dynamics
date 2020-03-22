@@ -210,9 +210,9 @@ Dasym = np.matrix([[0,0],
 systemSym = ml.ss(Asym, Bsym, Csym, Dsym)
 systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
 
-Tin = np.arange(0,100,0.01)
+Tin = np.arange(0,20,0.01)
 Uin = np.zeros_like(Tin)
-Uin[0:100] = np.radians(5)
+Uin[0:100] = np.radians(10)
 
 TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, alpha_0, theta_0, 0])
 # ySym, TSym = ml.step(systemSym,X0=[0,alpha_0,theta_0,0],T = Tin)
@@ -221,8 +221,9 @@ ySym[0] = ySym[0]*u_0 + u_0
 ySym[3] = ySym[3]*(u_0 / chord)
 
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
-UinAsym = np.zeros((10000,2))
-UinAsym[0:50,0] = 0.025#np.radians(5)
+UinAsym = np.zeros((2000,2))
+UinAsym[0:100,0] = np.radians(10)
+
 TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(UinAsym),X0=[0,0,0,0])
 
 yAsym[2] = yAsym[2] * ((2*u_0)/span)
@@ -279,11 +280,11 @@ def PlotAsym(ShouldPlot):
 		plt.plot(TSym, yAsym[0])
 		plt.grid()
 		plt.ylabel("sideslip")
-		plt.subplot(2, 2, 2)
+		plt.subplot(2, 2, 3)
 		plt.plot(TSym, yAsym[1])
 		plt.grid()
 		plt.ylabel("roll angle")
-		plt.subplot(2, 2, 3)
+		plt.subplot(2, 2, 2)
 		plt.plot(TSym, yAsym[2])
 		plt.grid()
 		plt.ylabel("roll rate")
@@ -295,9 +296,35 @@ def PlotAsym(ShouldPlot):
 PrintAB(False)
 PrintStabilityDerivatives(False)
 PrintEigvals(True)
-PlotSym(False)
-PlotAsym(False)
+PlotSym(True)
+PlotAsym(True)
 plt.show()
+
+def ShortPeriodOscillation():
+	print("Short Period Oscillation")
+	sa1 = -2 * mu_c * Ky ** 2 * (Cz_alpha_dot - 2 * mu_c)
+	sb1 = -2 * mu_c * Ky ** 2 * Cz_alpha + Cm_q * (Cz_alpha_dot - 2 * mu_c) - Cm_alpha_dot * (Cz_q + 2 * mu_c)
+	sc1 = Cz_alpha * Cm_q - Cm_alpha * (Cz_q + 2 * mu_c)
+	#Ja echt Ivo wat is dit voor form?
+	print("Lambda1 ", (V / chord) * (-sb1 - cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
+	print("Lambda2 ", (V / chord) * (-sb1 + cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
+	print()
+
+def PhugoidMotion():
+	print("Phugoid Motion")
+	sa2 = 2 * mu_c * ((Cz_alpha * Cm_q) - 2 * mu_c * Cm_alpha)
+	sb2 = 2 * mu_c * ((Cx_u * Cm_alpha) - Cm_u * Cx_alpha) + Cm_q * ((Cz_u * Cx_alpha) - (Cx_u * Cz_alpha))
+	sc2 = Cz_0 * ((Cm_u * Cz_alpha) - (Cz_u * Cm_alpha))
+
+	lambda21 = (-sb2 - cmath.sqrt(sb2 ** 2 - 4 * sa2 * sc2)) / (2 * sa2)
+	lambda22 = (-sb2 + cmath.sqrt(sb2 ** 2 - 4 * sa2 * sc2)) / (2 * sa2)
+	print("Lambda1 ", ((V / chord) * lambda21))
+	print("Lambda2 ", ((V / chord) * lambda22))
+	print()
+
+
+
+
 
 def HeavilyDampedAperiodicRollingMotion():
 	Lambda_b1= V/span * Cl_p/(4*mu_b*Kx**2)
@@ -335,6 +362,8 @@ def DutchRollMotionAndAperiodicRollingMotion():
 	print("Lambda3: ", Lambda3)
 	print()
 
+ShortPeriodOscillation()
+PhugoidMotion()
 HeavilyDampedAperiodicRollingMotion()
 DutchRollMotion()
 AperiodicSpiralMotion()
