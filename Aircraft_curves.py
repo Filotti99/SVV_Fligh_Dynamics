@@ -178,7 +178,7 @@ def drag_polar(measurement_matrix, reality:bool):
       - Returns an array with the C_D at each measurement point (= row) of the matrix
     '''
     C_L_array = calc_CL(measurement_matrix, not reality)
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality, not reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality)
     e = 0.8
     CD0 = 0.04
     C_D_calculated = []
@@ -242,7 +242,7 @@ def drag_curve(measurement_matrix, reality:bool):
       - Returns an array with the C_D at each measurement point (= row) of the matrix
     '''
     Alpha_array = [row[5] for row in measurement_matrix]
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality, not reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality)
     plt.plot(Alpha_array, C_D_array)
     plt.title('Drag coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [deg]')
@@ -322,7 +322,7 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 # print(calc_M(inputs.measurement_matrix))
 # print(calc_deltaT(inputs.measurement_matrix))
 # print(calc_CL(inputs.measurement_matrix, ref = True))
-# print(calc_CD_curve(inputs.measurement_matrix, reality = False, ref = True))
+# print(calc_CD_curve(inputs.measurement_matrix, reality = False))
 # print(drag_polar(inputs.measurement_matrix, reality = False))
 # print(lift_curve(inputs.measurement_matrix, ref = True))
 # print(drag_curve(inputs.measurement_matrix, reality = False))
@@ -332,7 +332,7 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 # print(calc_M(inputs.measurement_matrix_real))
 # print(calc_deltaT(inputs.measurement_matrix_real))
 # print(calc_CL(inputs.measurement_matrix_real, ref = False))
-# print(calc_CD_curve(inputs.measurement_matrix_real, reality = True, ref = False))
+# print(calc_CD_curve(inputs.measurement_matrix_real, reality = True))
 # print(drag_polar(inputs.measurement_matrix_real, reality = True))
 # print(lift_curve(inputs.measurement_matrix_real, ref = False))
 # print(drag_curve(inputs.measurement_matrix_real, reality = True))
@@ -382,7 +382,7 @@ if __name__ == '__main__':
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
     y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        print(calc_CD_curve(x, True, False), y, almost_equal_perc(calc_CD_curve(x, True, False)[2][i], y[i], 0.1, True))
+        print(calc_CD_curve(x, True), y, almost_equal_perc(calc_CD_curve(x, True)[2][i], y[i], 0.1, True))
 
     """
     elevator_alpha Test 1
