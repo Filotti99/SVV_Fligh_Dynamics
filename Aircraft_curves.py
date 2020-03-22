@@ -283,10 +283,22 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
 
 # Test functions (commented to prevent plots from being spammed when running the file)
 
-#print(drag_polar(inputs.measurement_matrix_real, True))
-#print(lift_curve(inputs.measurement_matrix, False))
-#print(drag_curve(inputs.measurement_matrix_real, True))
-#print(calc_CL(inputs.measurement_matrix_real, False))
-#print(calc_M(inputs.measurement_matrix_real))
-#print(calc_deltaT(inputs.measurement_matrix_real))
-#print(elevator_curve_alpha(inputs.measurement_matrix_real))
+# Reference Data
+# print(calc_M(inputs.measurement_matrix))
+# print(calc_deltaT(inputs.measurement_matrix))
+# print(calc_CL(inputs.measurement_matrix, ref = True))
+# print(calc_CD_curve(inputs.measurement_matrix, reality = False, ref = True))
+# print(drag_polar(inputs.measurement_matrix, reality = False))
+# print(lift_curve(inputs.measurement_matrix, ref = True))
+# print(drag_curve(inputs.measurement_matrix, reality = False))
+# print(elevator_curve_alpha(inputs.measurement_matrix))
+
+# Flight Test Data
+# print(calc_M(inputs.measurement_matrix_real))
+# print(calc_deltaT(inputs.measurement_matrix_real))
+# print(calc_CL(inputs.measurement_matrix_real, ref = False))
+# print(calc_CD_curve(inputs.measurement_matrix_real, reality = True, ref = False))
+# print(drag_polar(inputs.measurement_matrix_real, reality = True))
+# print(lift_curve(inputs.measurement_matrix_real, ref = False))
+# print(drag_curve(inputs.measurement_matrix_real, reality = True))
+# print(elevator_curve_alpha(inputs.measurement_matrix_real))
