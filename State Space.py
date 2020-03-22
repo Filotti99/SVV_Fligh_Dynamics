@@ -2,7 +2,7 @@ import numpy as np
 import control.matlab as ml
 import control as c
 import matplotlib.pyplot as plt
-
+import cmath
 #Standard atmosphere
 g = 9.81
 
@@ -22,16 +22,16 @@ alpha_0 = 0
 theta_0 = 0
 
 span = 15.911
-cord = 2.0569
+chord = 2.0569
 S = 30.00
 Aspect_ratio = span**2/S
 
 D_b = span/V
-D_c = cord/V
+D_c = chord / V
 
 mu_b = mass / (density*S*span)
 #print(mu_b)
-mu_c = mass / (density*S*cord)
+mu_c = mass / (density * S * chord)
 Kx = np.sqrt(0.019)
 Ky = np.sqrt(1.25*1.114)
 Kz = np.sqrt(0.042)
@@ -86,15 +86,15 @@ Cm_alpha_dot = 0.1780
 Cm_delta_e = -1.1642
 
 ### Equation of Motion Matrices - V1 (Outdated) ###
-#C1sym = np.matrix([[(-2*mu_c*cord)/(V**2),					0,								0,											0],
-#				   [0,										(Cz_alpha_dot-2*mu_c)*cord/V,		0,											0],
-#				   [0,										0,								-cord/V,									0],
-#				   [0,										Cm_alpha_dot*cord/V,				0,										-2*mu_c*Ky**2*cord**2/(V**2)]])
+#C1sym = np.matrix([[(-2*mu_c*chord)/(V**2),					0,								0,											0],
+#				   [0,										(Cz_alpha_dot-2*mu_c)*chord/V,		0,											0],
+#				   [0,										0,								-chord/V,									0],
+#				   [0,										Cm_alpha_dot*chord/V,				0,										-2*mu_c*Ky**2*chord**2/(V**2)]])
 
-#C2sym = np.matrix([[Cx_u/V,								Cx_alpha,						Cz_0,										Cx_q*cord/V],
-#				   [Cz_u/V,									Cz_alpha,						-Cx_0,										(Cz_q+2*mu_c)*cord/V],
-#				   [0,										0,								0,											cord/V],
-#				   [Cm_u/V,									Cm_alpha,						0,											Cm_q*cord/V]])
+#C2sym = np.matrix([[Cx_u/V,								Cx_alpha,						Cz_0,										Cx_q*chord/V],
+#				   [Cz_u/V,									Cz_alpha,						-Cx_0,										(Cz_q+2*mu_c)*chord/V],
+#				   [0,										0,								0,											chord/V],
+#				   [Cm_u/V,									Cm_alpha,						0,											Cm_q*chord/V]])
 
 #C3sym = np.matrix([[Cx_delta_e],
 #				   [Cz_delta_e],
@@ -167,7 +167,7 @@ def PrintAB(ShouldPrint):
 		print("symmetric: ")
 		print("A: ", Asym)
 		print("B: ", Bsym)
-		print(V/cord)
+		print(V / chord)
 
 		print("Asymmetric: ")
 		print("A: ", Aasym)
@@ -218,7 +218,7 @@ TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, alpha
 # ySym, TSym = ml.step(systemSym,X0=[0,alpha_0,theta_0,0],T = Tin)
 
 ySym[0] = ySym[0]*u_0 + u_0
-ySym[3] = ySym[3]*(u_0/cord)
+ySym[3] = ySym[3]*(u_0 / chord)
 
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
 UinAsym = np.zeros((10000,2))
@@ -295,6 +295,49 @@ def PlotAsym(ShouldPlot):
 PrintAB(False)
 PrintStabilityDerivatives(False)
 PrintEigvals(True)
-PlotSym(True)
-PlotAsym(True)
+PlotSym(False)
+PlotAsym(False)
 plt.show()
+
+def HeavilyDampedAperiodicRollingMotion():
+	Lambda_b1= V/span * Cl_p/(4*mu_b*Kx**2)
+	print("Heavily Damped Aperiodic Rolling Motion:")
+	print("Lambda_b1: ", Lambda_b1)
+	print()
+
+def DutchRollMotion():
+	A = 8*mu_b**2 * Kz**2
+	B = -2*mu_b*(Cn_r + 2*Kz**2 *Cy_beta)
+	C = 4*mu_b*Cn_beta + Cy_beta*Cn_r
+	Lambda1 = V/span * (-B + cmath.sqrt(B ** 2 - 4 * A * C)) / (2 * A)
+	Lambda2 = V/span * (-B - cmath.sqrt(B ** 2 - 4 * A * C)) / (2 * A)
+	print("Dutch Roll Motion")
+	print("Lambda1: ", Lambda1)
+	print("Lambda2: ", Lambda2)
+	print()
+
+def AperiodicSpiralMotion():
+	Lambda_b4 = V/span* (2*CL*(Cl_beta*Cn_r - Cn_beta*Cl_r))/(Cl_p*(Cy_beta*Cn_r + 4*mu_b*Cn_beta) - Cn_p*(Cy_beta*Cl_r + 4*mu_b*Cl_beta))
+	print("AperiodicSpiralMotion")
+	print("Lambda_b4: ", Lambda_b4)
+	print()
+
+def DutchRollMotionAndAperiodicRollingMotion():
+	A = 4*mu_b**2 *(Kx**2 * Kz**2 - Kxz**2)
+	B = -mu_b*((Cl_r+Cn_p)*Kxz + Cn_r*Kx**2 + Cl_p*Kz**2)
+	C = 2*mu_b*(Cl_beta*Kxz+Cn_beta*Kx**2) + 1/4*(Cl_p*Cn_r - Cn_p*Cl_r)
+	D = 1/2 * (Cl_beta*Cn_p - Cn_beta*Cl_p)
+	Lambda1, Lambda2, Lambda3 = V/span * np.roots([A, B, C, D])
+
+	print("Dutch Roll Motion and Aperiodic Rolling Motion")
+	print("Lambda1: ", Lambda1)
+	print("Lambda2: ", Lambda2)
+	print("Lambda3: ", Lambda3)
+	print()
+
+HeavilyDampedAperiodicRollingMotion()
+DutchRollMotion()
+AperiodicSpiralMotion()
+DutchRollMotionAndAperiodicRollingMotion()
+
+
