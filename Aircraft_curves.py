@@ -343,9 +343,9 @@ if __name__ == '__main__':
     x2 = np.array([[0,0,0,0,0,0,0,0,0,288.15]])
     y2 = [0]
     for i in range(len(y)):
-        almost_equal_perc(calc_M(x)[i], y[i], 0.1)
+        almost_equal_perc(calc_M(x)[i], y[i], 0.1, True)
     for i in range(len(x2)):
-        almost_equal_abs(calc_M(x2)[i], y2[i], 10**(-2))
+        almost_equal_abs(calc_M(x2)[i], y2[i], 10**(-2), True)
 
     """
     calcdeltaT Test 1
@@ -355,7 +355,7 @@ if __name__ == '__main__':
     x = np.array([[0,0,0,0,0,0,0,0,0,288.15], [0,0,0,1000,0,0,0,0,0,281.650], [0,0,0,10000,0,0,0,0,0,223.150]])
     y = [0, 0, 0]
     for i in range(len(x)):
-        almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2))
+        almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2), True)
 
     """
     calcCL Test 1
@@ -364,7 +364,7 @@ if __name__ == '__main__':
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
     y = [1000/(0.5*1.225*100*100*30), 10000/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        almost_equal_perc(calc_CL(x, True)[i], y[i], 0.1)
+        almost_equal_perc(calc_CL(x, True)[i], y[i], 0.1, True)
 
     """
     calcCD_curve Test 1
@@ -373,13 +373,20 @@ if __name__ == '__main__':
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
     y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        almost_equal_perc(calc_CD_curve(x, True, False)[2][i], y[i], 0.1, True)
+        print(calc_CD_curve(x, True, False), y, almost_equal_perc(calc_CD_curve(x, True, False)[2][i], y[i], 0.1, True))
+
+    """
+    elevator_alpha Test 1
+    Calculates whether the alpha array is ever increasing
+    """
+    x, y = elevator_curve_alpha(inputs.measurement_matrix)
+    for i in range(1, len(x)):
+        assert(x[i]-x[i-1] > 0)
 
     # Functions that still require unit tests
-    # getThrust
     # calcTc
     # calcW
     # V_e_red
     # de_red
-    # dragpolar (once the least squares solution is fixed)
-    # elevator_curve_alpha
+    # drag_polar (@Zach once the least squares solution is fixed)
+    # red_elevator_curve
