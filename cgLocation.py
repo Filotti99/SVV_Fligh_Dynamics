@@ -44,12 +44,28 @@ def deltaCg(w_f1,w_f0, a = False, ref = False):
 
      Outputs:
       - The shift in cg, given in m
+
+    w_fuel_dcg = w_fuel_ref if ref else w_fuel
+    idx_pax = -3
+    l_p0 = np.array([131,131,214,214,251,251,288,288,170])*inc
+    l_p1 = np.array([131,131,214,214,251,251,288,288,170])*inc
+    l_p1[idx_pax] = 134*inc
+    w_pax_dcg = w_pass_ref if ref else w_pass
+
+    m_f0 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel_dcg-w_f0)
+    m_f1 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel_dcg-w_f1)
+    m_p0 = l_p0*w_pax_dcg
+    m_p1 = l_p1*w_pax_dcg
+
+    x_cg0 = (sum(m_p0)+m_oew+m_f0)/(sum(w_pax_dcg)+w_oew+(w_fuel_dcg-w_f0))
+    x_cg1 = (sum(m_p1)+m_oew+m_f1)/(sum(w_pax_dcg)+w_oew+(w_fuel_dcg-w_f1))
+
     '''
     if ref:
         m_f0 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel_ref-w_f0)
         m_f1 = interpolate(fuel_cg[:,0],fuel_cg[:,1],w_fuel_ref-w_f1)
         l_p0 = np.array([131,131,214,214,251,251,288,288,170])*inc
-        l_p1 = np.array([131,131,214,214,251,251,134,288,170])*inc # used to be 288, 134
+        l_p1 = np.array([131,131,214,214,251,251,134,288,170])*inc
         m_p0 = l_p0*w_pass_ref
         m_p1 = l_p1*w_pass_ref
 
@@ -65,9 +81,10 @@ def deltaCg(w_f1,w_f0, a = False, ref = False):
 
         x_cg0 = (sum(m_p0)+m_oew+m_f0)/(sum(w_pass_ref)+w_oew+(w_fuel-w_f0))
         x_cg1 = (sum(m_p1)+m_oew+m_f1)/(sum(w_pass_ref)+w_oew+(w_fuel-w_f1))
-
+    
     return abs(x_cg1-x_cg0) if a else x_cg1-x_cg0
 
-if __name__ == 'main':
-    dCg = deltaCg(989*lbs*g,940*g*lbs, True, False)
-    dCg_ref = deltaCg(910*lbs*g,881*g*lbs, True, False)
+if __name__ == '__main__':
+    dCg = deltaCg(989*lbs*g,940*g*lbs, False, False)
+    dCg_ref = deltaCg(910*lbs*g,881*g*lbs, False, True)
+    print(dCg, dCg_ref)
