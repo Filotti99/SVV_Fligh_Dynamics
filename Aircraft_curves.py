@@ -27,7 +27,7 @@ def calc_Tc(measurement_matrix, reality:bool, nominal:bool, trim:bool):
         Tc_array.append(Thrust_matrix[i] / (0.5*inputs.rho_0*measurement_matrix[i][4]**2*inputs.d**2))
     return Tc_array
 
-def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
+def calc_W(w_f0: float, meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
     path = "cg_data/pass_w_ref.dat" if ref else "cg_data/pass_w.dat"
 
@@ -97,7 +97,7 @@ def calc_CL(measurement_matrix, ref):
         counter += 1
     return C_L_array#, C_L_other
 
-def calc_CD_curve(measurement_matrix,reality, ref):
+def calc_CD_curve(measurement_matrix, reality:bool):
     D_array = get_Thrust(reality,False,False)
     CL_array = calc_CL(measurement_matrix, not reality)
     V_e_array = V_e_red(measurement_matrix, not reality, False, False) # array with the equivalent airspeed
@@ -114,7 +114,7 @@ def calc_CD_curve(measurement_matrix,reality, ref):
 
     return e,CD0,CD_array
 
-def drag_polar(measurement_matrix,reality):
+def drag_polar(measurement_matrix, reality:bool):
     C_L_array = calc_CL(measurement_matrix,not reality)
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix,reality)
     e = 0.8
