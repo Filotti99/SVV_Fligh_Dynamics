@@ -5,7 +5,7 @@ import inputs
 from tools import interpolate
 from scipy import stats
 
-def almost_equal(a, b, percentage=1, return_value=False):
+def almost_equal_perc(a, b, percentage=1, return_value=False):
     """
     Tests if two floating point numbers are almost equal by comparing their percentual difference against a
     set value. Default significance is 1%.
@@ -17,6 +17,18 @@ def almost_equal(a, b, percentage=1, return_value=False):
     assert 100*abs(a-b)/(0.5*(a+b)) <= percentage
     if return_value:
         return 100*abs(a-b)/(0.5*(a+b))
+
+def almost_equal_abs(a, b, difference=0.01, return_value=False):
+    """
+    Tests if two floating point numbers are almost equal by comparing their absolute difference
+
+    :param a, b: Floating point numbers to compare
+    :param difference = Maximum allowed absolute difference
+    :raises: error when difference falls outside bounds
+    """
+    assert abs(a-b) <= difference
+    if return_value:
+        return abs(a-b)
 
 
 def get_Thrust(reality:bool, nominal:bool, trim:bool):
@@ -322,11 +334,25 @@ def red_elevator_curve(trim_mat:np.ndarray, ref: bool, c_md: float):
 
 if __name__ == '__main__':
     """
-    calcM test 1
+    calcM Test 1
     At ISA 0ft values, a list of M values is given V values
     https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
     """
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15], [0,0,0,0,200,0,0,0,0,288.15]])
     y = [100/math.sqrt(1.401*287.057*288.15), 200/math.sqrt(1.401*287.057*288.15)]
+    x2 = np.array([[0,0,0,0,0,0,0,0,0,288.15]])
+    y2 = [0]
     for i in range(len(y)):
-        almost_equal(calc_M(x)[i], y[i], 1.0)
+        almost_equal_perc(calc_M(x)[i], y[i], 0.1)
+    for i in range(len(x2)):
+        almost_equal_abs(calc_M(x2)[i], y2[i], 10**(-2))
+
+    """
+    calcdeltaT Test 1
+    Difference between T_ISA equation and ISA from online sources should be small
+    https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
+    """
+    x = np.array([[0,0,0,0,0,0,0,0,0,288.15], [0,0,0,1000,0,0,0,0,0,281.650], [0,0,0,10000,0,0,0,0,0,223.150]])
+    y = [0, 0, 0]
+    for i in range(len(x)):
+        almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2))
