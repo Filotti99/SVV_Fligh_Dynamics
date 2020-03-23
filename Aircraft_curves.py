@@ -162,6 +162,7 @@ def calc_CD_curve(measurement_matrix, reality:bool):
         CL2_array.append(CL_array[i]**2)
     if reality:
         slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-2],CD_array[0:-2])
+#        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     else:
         slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     e = (slope * math.pi * inputs.AR)**-1
@@ -182,18 +183,31 @@ def drag_polar(measurement_matrix, reality:bool):
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality)
     e_nom = 0.8
     CD0_nom = 0.04
-    CD0_nom = CD0
+#    CD0_nom = CD0
     C_D_calculated = []
     C_D_calculated_nom = []
+    CL2_array = []
     for i in range(len(C_L_array)):
+        CL2_array.append(C_L_array[i]**2)
         C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
         C_D_calculated_nom.append(CD0_nom + C_L_array[i]**2 / (math.pi*inputs.AR*e_nom))
+    
     plt.figure()
     plt.plot(C_L_array, C_D_array, label='measured')
-    plt.plot(C_L_array, C_D_calculated, label='calculated')
-    plt.plot(C_L_array, C_D_calculated_nom, label='calculated w/ nominal values')
+    plt.plot(C_L_array, C_D_calculated, label='linear regression')
+    plt.plot(C_L_array, C_D_calculated_nom, label='theoretical values')
     plt.title('CL-CD polar')
     plt.xlabel('CL')
+    plt.ylabel('CD')
+    plt.legend()
+    plt.show()
+    
+    plt.figure()
+    plt.plot(CL2_array, C_D_array, label='measured')
+    plt.plot(CL2_array, C_D_calculated, label='linear regression')
+    plt.plot(CL2_array, C_D_calculated_nom, label='theoretical values')
+    plt.title('CL^2-CD polar')
+    plt.xlabel('CL^2')
     plt.ylabel('CD')
     plt.legend()
     plt.show()
@@ -217,7 +231,6 @@ def lift_curve(measurement_matrix, ref):
     plt.ylabel('Lift coefficient[-]')
     plt.show()
     return Alpha_array, C_L_array
-
 
 def drag_curve(measurement_matrix, reality:bool):
     '''
