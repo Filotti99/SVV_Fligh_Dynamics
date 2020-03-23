@@ -160,9 +160,8 @@ def calc_CD_curve(measurement_matrix, reality:bool):
         rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
         CL2_array.append(CL_array[i]**2)
-    print(len(CL2_array),len(CD_array))
     if reality:
-        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
+        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-2],CD_array[0:-2])
     else:
         slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     e = (slope * math.pi * inputs.AR)**-1
@@ -364,23 +363,14 @@ if __name__ == '__main__':
     for i in range(len(x)):
         almost_equal_perc(calc_CL(x, True)[i], y[i], 0.1, True)
 
-#    """
-#    calcCD_curve Test 1
-#    Calculates CD for standard values, 0 altitude is taken to not confound with V_red test
-#    """
-#    x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
-#    y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
-#    for i in range(len(x)):
-#        print(calc_CD_curve(x, True), y, almost_equal_perc(calc_CD_curve(x, True)[2][i], y[i], 0.1, True))
-
     """
     calcCD_curve Test 1
     Calculates CD for standard values, 0 altitude is taken to not confound with V_red test
     """
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
-    y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
+    y = [7859.82/(0.5*1.225*100*100*30), 6066.2/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        print(calc_CD_curve(x, True), y, almost_equal_perc(calc_CD_curve(x, True)[2][i], y[i], 0.1, True))
+        print(calc_CD_curve(x, False), y, almost_equal_perc(calc_CD_curve(x, False)[2][i], y[i], 0.1, True))
 
     """
     elevator_alpha Test 1
