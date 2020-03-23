@@ -37,28 +37,27 @@ def calc_deltaT(measurement_matrix):
         deltaT_array.append(T_delta)
     return deltaT_array
 
-
 #verification of functions:
 """
 calcM Test 1
 At ISA 0ft values, a list of M values is given V values
 https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
 """
-x = np.array([[0,0,0,0,100,0,0,0,0,288.15], [0,0,0,0,200,0,0,0,0,288.15]])
+x = np.array([[0,0,0,0,100,0,0,0,0,288.15,0], [0,0,0,0,200,0,0,0,0,288.15,0]])
 y = [100/math.sqrt(inputs.gamma*inputs.R*inputs.T_0), 200/math.sqrt(inputs.gamma*inputs.R*inputs.T_0)]
-x2 = np.array([[0,0,0,0,0,0,0,0,0,288.15]])
+x2 = np.array([[0,0,0,0,0,0,0,0,0,288.15,0]])
 y2 = [0]
 for i in range(len(y)):
     ac.almost_equal_perc(calc_M(x)[i], y[i], 0.1, True)
 for i in range(len(x2)):
     ac.almost_equal_abs(calc_M(x2)[i], y2[i], 10**(-2), True)
-
+    
 """
 calcdeltaT Test 1
 Difference between T_ISA equation and ISA from online sources should be small
 https://www.digitaldutch.com/atmoscalc/
 """
-x = np.array([[0,0,0,0,0,0,0,0,0,288.15], [0,0,0,1000,0,0,0,0,0,281.650], [0,0,0,10000,0,0,0,0,0,223.150]])
+x = np.array([[0,0,0,0,0,0,0,0,0,288.15,0], [0,0,0,1000,0,0,0,0,0,281.650,0], [0,0,0,10000,0,0,0,0,0,223.150,0]])
 y = [0, 0, 0]
 for i in range(len(x)):
     ac.almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2), True)
@@ -79,11 +78,11 @@ thrust_trim_matrix_real_nominal = np.transpose(np.array([inputs.trim_matrix_real
 
 
 #for verification purposes
-testH = [0]*5
-testM = calc_M([[0,0,0,0,100,0,0,0,0,288.15]])*5
-testT = calc_deltaT([[0,0,0,0,100,0,0,0,0,288.15]])*5
-testmdotl = [0,100,200,300,400,500]
-testmdotr = [50,150,250,350,450,550]
+testH = [0]*11
+testM = [0]*11
+testT = [0]*11
+testmdotl = np.arange(0.05,0.16,0.01)
+testmdotr = testmdotl
 thrust_test = np.transpose(np.array([testH,testM,testT,testmdotl,testmdotr]))
 
 
