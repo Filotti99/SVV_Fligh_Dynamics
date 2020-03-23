@@ -160,13 +160,14 @@ def calc_CD_curve(measurement_matrix, reality:bool):
         rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
         CL2_array.append(CL_array[i]**2)
+    print(len(CL2_array),len(CD_array))
     if reality:
-        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-2],CD_array[0:-2])
+        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     else:
-        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-2],CD_array[0:-2])
+        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     e = (slope * math.pi * inputs.AR)**-1
 
-    return e,CD0,CD_array,r_value,p_value,std_err
+    return e,CD0,CD_array#,r_value,p_value,std_err
 
 def drag_polar(measurement_matrix, reality:bool):
     '''
@@ -180,14 +181,9 @@ def drag_polar(measurement_matrix, reality:bool):
     '''
     C_L_array = calc_CL(measurement_matrix, not reality)
     e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality)
-<<<<<<< HEAD
     e_nom = 0.8
     CD0_nom = 0.04
     CD0_nom = CD0
-=======
-    e = 0.8
-    CD0 = 0.04
->>>>>>> baccbaa976c9ef5c24bc3537775f7b5c8e2cfaf8
     C_D_calculated = []
     C_D_calculated_nom = []
     for i in range(len(C_L_array)):
@@ -368,7 +364,6 @@ if __name__ == '__main__':
     for i in range(len(x)):
         almost_equal_perc(calc_CL(x, True)[i], y[i], 0.1, True)
 
-<<<<<<< HEAD
 #    """
 #    calcCD_curve Test 1
 #    Calculates CD for standard values, 0 altitude is taken to not confound with V_red test
@@ -377,7 +372,7 @@ if __name__ == '__main__':
 #    y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
 #    for i in range(len(x)):
 #        print(calc_CD_curve(x, True), y, almost_equal_perc(calc_CD_curve(x, True)[2][i], y[i], 0.1, True))
-=======
+
     """
     calcCD_curve Test 1
     Calculates CD for standard values, 0 altitude is taken to not confound with V_red test
@@ -386,7 +381,6 @@ if __name__ == '__main__':
     y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
         print(calc_CD_curve(x, True), y, almost_equal_perc(calc_CD_curve(x, True)[2][i], y[i], 0.1, True))
->>>>>>> baccbaa976c9ef5c24bc3537775f7b5c8e2cfaf8
 
     """
     elevator_alpha Test 1
