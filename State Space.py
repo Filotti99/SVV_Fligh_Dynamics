@@ -19,6 +19,22 @@ def lbs2Kg(weightInLbs):
 def celsius2K(tempInCelsius):
 	return tempInCelsius + 273.15
 
+def getInitialCondition(path,fileName,index):
+	file = open(path+fileName)
+	lines = file.readlines()
+	file.close()
+	data = np.genfromtxt(lines)
+	return data[index]
+
+def getData(path,fileName,startIndex,endIndex):
+	file = open(path+fileName)
+	lines = file.readlines()
+	file.close()
+	data = np.genfromtxt(lines)
+	return data[startIndex:endIndex]
+
+def minutes2Seconds(minutes):
+	return 60 * minutes
 
 #Standard atmosphere
 g = 9.80665
@@ -28,32 +44,45 @@ rho_0 = 1.225
 R = 287
 m0 = 5832.05389
 
+tStart = minutes2Seconds(58)
+tEnd = minutes2Seconds(60)
+indexStart = 10*tStart
+indexEnd  = 10*tEnd
+
+path = r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\"
+print("Program initiated with Path: ", path)
+
+
 span = 15.911
 chord = 2.0569
 S = 30.00
 Aspect_ratio = span**2/S
 
 
-fuelUsed = lbs2Kg(554.57)
+fuelUsed = lbs2Kg(getInitialCondition(path,"calculated fuel used by fuel mass flow[lbs].csv",indexStart))
 ####INPUTS, Change before use
-V = kts2mps(211.01)
+V = kts2mps(getInitialCondition(path,"True Airspeed[knots].csv",indexStart))
 u_0= V
 mass = m0-fuelUsed
 Weight = mass*g
-T = celsius2K(-17)
+T = celsius2K(getInitialCondition(path,"Static Air Temperature[deg C].csv",indexStart))
 density  = rho_0*(T/T0)**(-(g/(a*R))-1)
 
 D_b = span/V
 D_c = chord / V
 
 
-#Using reference values
-oswald_factor = 0.8
-CD_0 = 0.04
-CL_alpha = 5.084
-alpha_0 = deg2rad(5.1044)
-theta_0 = deg2rad(4.0759)
-q_0 = deg2rad(-0.05094)* chord/V
+#Flight test values
+oswald_factor = 0.8797482096696121
+CD_0 = 0.0297851584886189
+CL_alpha = 4.345
+alpha_0 = deg2rad(getInitialCondition(path,"Angle of attack[deg].csv",indexStart))
+theta_0 = deg2rad(getInitialCondition(path,"Pitch Angle[deg].csv",indexStart))
+q_0 = deg2rad(getInitialCondition(path,"Body Pitch Rate[deg_p_s].csv",indexStart))* chord/V
+beta_0 = 0
+phi_0 = deg2rad(getInitialCondition(path,"Roll Angle[deg].csv",indexStart))
+p_0 = deg2rad(getInitialCondition(path,"Body Roll Rate[deg_p_s].csv",indexStart))*(span/(2*V))
+r_0 = deg2rad(getInitialCondition(path,"Body Yaw Rate[deg_p_s].csv", indexStart))*(span/(2*V))
 
 
 
@@ -106,12 +135,12 @@ Cn_delta_a = -0.0120
 Cn_delta_r = -0.0939
 
 
-#Replace values with calculated ones
+#Flight test data used
 Cm_q = -8.79415
 Cm_u = 0.06990
-Cm_alpha = -0.5626
+Cm_alpha = -0.550
 Cm_alpha_dot = 0.1780
-Cm_delta_e = -1.1642
+Cm_delta_e = -1.216
 
 ### Equation of Motion Matrices - V1 (Outdated) ###
 #C1sym = np.matrix([[(-2*mu_c*chord)/(V**2),					0,								0,											0],
@@ -238,30 +267,31 @@ Dasym = np.matrix([[0,0],
 systemSym = ml.ss(Asym, Bsym, Csym, Dsym)
 systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
 
-Tin = np.arange(0,300,0.1)
-Uin = np.zeros_like(Tin)
-Uin[0:100] = np.radians(10)
+Tin = np.arange(0,tEnd-tStart,0.1)
+#Uin = np.zeros_like(Tin)
+#Uin[0:100] = np.radians(10)
 
-print("HERE")
-elevator = open(r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\Deflection_of_elevator[deg].csv","r")
-lines = np.array(elevator.readlines())
-elevator.close()
 
-elevatorInputs = np.genfromtxt(lines)
+Uin = deg2rad(getData(path,"Deflection_of_elevator[deg].csv",indexStart,indexEnd))
+Uin = Uin - Uin[0]
+print(Uin)
 
-Uin = deg2rad(elevatorInputs[31800:34800])
+plt.figure()
+plt.plot(Tin,np.degrees(Uin))
 
 print(len(Tin),len(Uin))
 
 
-TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, alpha_0, theta_0, q_0])
+TSym, ySym, xOut = c.forced_response(systemSym, T = Tin, U = Uin, X0 = [0, 0, 0, 0])
 # ySym, TSym = ml.step(systemSym,X0=[0,alpha_0,theta_0,0],T = Tin)
 
-ySym[0] = ySym[0]*u_0 + u_0
-ySym[3] = ySym[3]*(u_0 / chord)
+ySym[0] = (ySym[0]*u_0 + u_0)/0.5144
+ySym[1] = ((ySym[1] + alpha_0)*180/np.pi)
+ySym[2] = (ySym[2]+theta_0) * 180/np.pi
+ySym[3] = ((ySym[3]*(u_0 / chord))+q_0)*180/np.pi
 
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
-UinAsym = np.zeros((3000,2))
+UinAsym = np.zeros(((tEnd-tStart)*10,2))
 UinAsym[0:100,0] = np.radians(10)
 UinAsym[101:200, 0] = np.radians(-10)
 
@@ -362,7 +392,7 @@ def PlotFlightData(t_min, t_max, *filenames):
 			plt.xlabel('Time Since Begin Observation [sec]')
     #plt.show()
 
-PlotFlightData(31800, 34800, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
+PlotFlightData(indexStart, indexEnd, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
 PrintAB(False)
 PrintStabilityDerivatives(False)
 PrintEigvals(True)
@@ -375,7 +405,7 @@ def ShortPeriodOscillation():
 	sa1 = -2 * mu_c * Ky ** 2 * (Cz_alpha_dot - 2 * mu_c)
 	sb1 = -2 * mu_c * Ky ** 2 * Cz_alpha + Cm_q * (Cz_alpha_dot - 2 * mu_c) - Cm_alpha_dot * (Cz_q + 2 * mu_c)
 	sc1 = Cz_alpha * Cm_q - Cm_alpha * (Cz_q + 2 * mu_c)
-	#Ja echt Ivo wat is dit voor form?
+	#Ja echt Ivo wat is dit voor form? #Nou Max s staat voor symmetrich, a,b en c voor de coefficienten in ax^2+bx+c respectievelijk en 1 en 2 staat voor welke eigenvalue het is, logisch toch?
 	print("Lambda1 ", (V / chord) * (-sb1 - cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
 	print("Lambda2 ", (V / chord) * (-sb1 + cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
 	print()
