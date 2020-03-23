@@ -63,11 +63,12 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
 
 
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
+    #print(meas_matrix, ref, tilda, vtas)
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
     M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)-1))
     T   = meas_matrix[:,-2]/(1+(inputs.gamma-1)/2*M**2)
     if vtas:
-        print(M*np.sqrt(inputs.gamma*inputs.R*T))
+        #print(M*np.sqrt(inputs.gamma*inputs.R*T))
         return M*np.sqrt(inputs.gamma*inputs.R*T)
     V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
 
@@ -341,8 +342,9 @@ if __name__ == '__main__':
 
     # Functions that still require unit tests
     # calcTc
-    # calcW
+    # calcW !not used!
     # V_e_red
     # de_red
     # drag_polar (@Zach once the least squares solution is fixed)
-    # red_elevator_curve
+    # red_elevator_curve !not sure if it needs verifcation, it litterally just plots...!
+    # red_force_curve !not sure if it needs verifcation, it litterally just plots...!

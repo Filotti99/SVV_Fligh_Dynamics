@@ -49,7 +49,7 @@ tEnd = minutes2Seconds(60)
 indexStart = 10*tStart
 indexEnd  = 10*tEnd
 
-path = r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\"
+path = r"flight_data\matlab_files\\"
 print("Program initiated with Path: ", path)
 
 
@@ -313,33 +313,57 @@ def PrintEigvals(ShouldPrint):
 		print("Eigenvalues asymmetric case: \n", np.linalg.eigvals(systemAsym.A))
 
 
-def PlotSym(ShouldPlot):
-	'''
-	Can be used to plot the response of the symmetric system to a disturbance
-	:param ShouldPlot: if True, will plot the response
-	:return: None (it does plot stuff though :D )
-	'''
-	if ShouldPlot is True:
-		plt.figure()
-		plt.subplot(2, 2, 1)
-		plt.plot(TSym, ySym[0])
-		plt.grid()
-		plt.ylabel("u")
-		plt.subplot(2, 2, 2)
-		plt.plot(TSym, ySym[1])
-		plt.grid()
-		plt.ylabel("alpha")
-		plt.subplot(2, 2, 3)
-		plt.plot(TSym, ySym[2])
-		plt.grid()
-		plt.ylabel("theta")
-		plt.subplot(2, 2, 4)
-		plt.plot(TSym, ySym[3])
-		plt.grid()
-		plt.ylabel("q")
+def PlotSym(ShouldPlot, t_min, t_max):
+    '''
+    Can be used to plot the response of the symmetric system to a disturbance
+    :param ShouldPlot: if True, will plot the response
+    :return: None (it does plot stuff though :D )
+    '''
+
+    t_measured = []
+    with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+        i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
+        t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
+        for t_point in t_data.readlines():
+            t_measured.append(float(t_point.strip()) - t_0 - t_min + (i%10)/10)
+            i += 1
+    idx_min = int(t_min*10)
+    idx_max = int(t_max*10)
+    t_measured = t_measured[idx_min:idx_max]
+
+    def generate_data(filename):
+        y = []
+        with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
+            for data_point in file.readlines():
+                y.append(float(data_point.strip()))
+                print(float(data_point.strip()))
+        return y[idx_min:idx_max]
+
+    if ShouldPlot is True:
+        plt.figure()
+        plt.subplot(2, 2, 1)
+        plt.plot(TSym, ySym[0])
+        plt.plot(t_measured, generate_data("True Airspeed[knots]"))
+        plt.grid()
+        plt.ylabel("u")
+        plt.subplot(2, 2, 2)
+        plt.plot(TSym, ySym[1])
+        plt.plot(t_measured, generate_data("Angle of attack[deg]"))
+        plt.grid()
+        plt.ylabel("alpha")
+        plt.subplot(2, 2, 3)
+        plt.plot(TSym, ySym[2])
+        plt.plot(t_measured, generate_data("Pitch Angle[deg]"))
+        plt.grid()
+        plt.ylabel("theta")
+        plt.subplot(2, 2, 4)
+        plt.plot(TSym, ySym[3])
+        plt.plot(t_measured, generate_data("Body Pitch Rate[deg_p_s]"))
+        plt.grid()
+        plt.ylabel("q")
 
 
-def PlotAsym(ShouldPlot):
+def PlotAsym(ShouldPlot, t_min, t_max):
 	'''
 	Can be used to plot the response of the symmetric system to a disturbance
 	:param ShouldPlot: if True, will plot the response
@@ -367,7 +391,7 @@ def PlotAsym(ShouldPlot):
 
 def PlotFlightData(t_min, t_max, *filenames):
 	t = []
-	with open(r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+	with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
 		i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
 		t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
 		for t_point in t_data.readlines():
@@ -381,7 +405,7 @@ def PlotFlightData(t_min, t_max, *filenames):
 	plt.figure()
 	for filename in filenames:
 		index += 1
-		with open(r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\" + filename + ".csv") as file:
+		with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
 			y = []
 			for data_point in file.readlines():
 				y.append(float(data_point.strip()))
@@ -396,9 +420,8 @@ PlotFlightData(indexStart, indexEnd, 'True Airspeed[knots]', 'Angle of attack[de
 PrintAB(False)
 PrintStabilityDerivatives(False)
 PrintEigvals(True)
-PlotSym(True)
-PlotAsym(True)
-plt.show()
+PlotSym(True, tStart, tEnd)
+PlotAsym(True, tStart, tEnd)
 
 def ShortPeriodOscillation():
 	print("Short Period Oscillation")
@@ -474,3 +497,4 @@ AperiodicSpiralMotion()
 DutchRollMotionAndAperiodicRollingMotion()
 
 
+plt.show()
