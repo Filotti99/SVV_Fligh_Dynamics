@@ -15,8 +15,6 @@ def verify(f, inputs:np.ndarray, predicted_output, err: float, perc: bool):
     else:
         print("\nTest failed for input: \n", inputs,"\nError = ", actual_err,"\n")
 
-def foo(a,b):
-    return a+b
 
 if __name__ == '__main__':
     #meas_mat = np.array([[0,0,0,10000,100, 268.338, 0]])
@@ -28,4 +26,4 @@ if __name__ == '__main__':
                        [np.array([[0,0,0,0,100, 288.15, 0]]), True, False, False]])
     predicted_output = np.array([[127.843],[104.836],[100],[99.102],[99.868],[100]])
     for i,item in enumerate(inputs):
-        verify(V_e_red, item, predicted_output[i] , 1, True)
+        verify(V_e_red, item, predicted_output[i] , err = 1e-3, perc = False)

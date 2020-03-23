@@ -162,7 +162,7 @@ def drag_polar(measurement_matrix, reality:bool):
         CL2_array.append(C_L_array[i]**2)
         C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
         C_D_calculated_nom.append(CD0_nom + C_L_array[i]**2 / (math.pi*inputs.AR*e_nom))
-    
+
     plt.figure()
     plt.plot(C_L_array, C_D_array, label='measured')
     plt.plot(C_L_array, C_D_calculated, label='linear regression')
@@ -172,7 +172,7 @@ def drag_polar(measurement_matrix, reality:bool):
     plt.ylabel('CD')
     plt.legend()
     plt.show()
-    
+
     plt.figure()
     plt.plot(CL2_array, C_D_array, label='measured')
     plt.plot(CL2_array, C_D_calculated, label='linear regression')
