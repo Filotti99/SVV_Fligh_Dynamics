@@ -9,7 +9,6 @@ def almost_equal_perc(a, b, percentage=1, return_value=False):
     """
     Tests if two floating point numbers are almost equal by comparing their percentual difference against a
     set value. Default significance is 1%.
-
     :param a, b: Floating point numbers to compare
     :param percentage = Maximum allowed difference in percentage
     :raises: error when difference falls outside bounds
@@ -21,7 +20,6 @@ def almost_equal_perc(a, b, percentage=1, return_value=False):
 def almost_equal_abs(a, b, difference=0.01, return_value=False):
     """
     Tests if two floating point numbers are almost equal by comparing their absolute difference
-
     :param a, b: Floating point numbers to compare
     :param difference = Maximum allowed absolute difference
     :raises: error when difference falls outside bounds
@@ -64,21 +62,6 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
 
-def calc_M(measurement_matrix):
-    '''
-    Inputs:
-     - measurement_matrix = a matrix of the inputs file
-
-     Outputs:
-      - An array with the Mach number at each measurement point (= row) of the matrix
-    '''
-    M_array = []
-    for row in measurement_matrix:
-        M = row[4]/math.sqrt(inputs.gamma*inputs.R*row[9])
-        M_array.append(M)
-    return M_array
-
-
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
     #print(meas_matrix, ref, tilda, vtas)
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
@@ -103,32 +86,13 @@ def de_red(meas_mat: np.ndarray, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
 
     return meas_mat[:, 6] - (c_mtc/c_md)*(Tcs-Tc)
 
-
-def calc_deltaT(measurement_matrix):
-    '''
-    Inputs:
-     - measurement_matrix = a matrix of the inputs file
-
-     Outputs:
-      - An array with the temperature differential with ISA at each measurement point (= row) of the matrix
-    '''
-    deltaT_array = []
-    for row in measurement_matrix:
-        T_ISA = inputs.T_0 + (row[3]*inputs.a_layer)
-        T_delta = T_ISA-row[9]
-        deltaT_array.append(T_delta)
-    return deltaT_array
-
-
 def calc_CL(measurement_matrix, ref):
     '''
     Inputs:
      - measurement_matrix = a matrix of the inputs file
      - ref = a bool that is true if the reference data is used and false if the flight test data is used
-
      Outputs:
       - An array with the C_L at each measurement point (= row) of the matrix
-
       Note:
       - An option to use rho at altitude and V_t is left in the code, but is put in comments for now
     '''
@@ -148,13 +112,11 @@ def calc_CL(measurement_matrix, ref):
         counter += 1
     return C_L_array#, C_L_other
 
-def calc_CD_curve(measurement_matrix, reality, ref):
+def calc_CD_curve(measurement_matrix, reality:bool):
     '''
     Inputs:
      - measurement_matrix = a matrix of the inputs file
      - reality = a bool that is true if the flight test data is used and false if the reference data is used
-     - ref = a bool that is true if the reference data is used and false if the flight test data is used
-
      Outputs:
       - The estimated value of 'e'
       - The estimated value of C_D0
@@ -169,55 +131,57 @@ def calc_CD_curve(measurement_matrix, reality, ref):
         rho = inputs.rho_0
         CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
         CL2_array.append(CL_array[i]**2)
-
-    slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
+    if reality:
+        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-1],CD_array[0:-1])
+#        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
+    else:
+        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     e = (slope * math.pi * inputs.AR)**-1
 
-    return e,CD0,CD_array
+    return e,CD0,CD_array#,r_value,p_value,std_err
 
-def drag_polar(measurement_matrix,reality):
+def drag_polar(measurement_matrix, reality:bool):
     '''
     Inputs:
      - measurement_matrix = a matrix of the inputs file
      - reality = a bool that is true if the flight test data is used and false if the reference data is used
-
      Outputs:
       - A plot of the C_L values on the x-axis an the C_D values on the y-axis (not returned)
       - Returns an array with the C_L at each measurement point (= row) of the matrix
       - Returns an array with the C_D at each measurement point (= row) of the matrix
     '''
     C_L_array = calc_CL(measurement_matrix, not reality)
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality, not reality)
-    e = 0.8
-    CD0 = 0.04
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality)
+    e_nom = 0.8
+    CD0_nom = 0.04
+#    CD0_nom = CD0
     C_D_calculated = []
-    error=[]
+    C_D_calculated_nom = []
+    CL2_array = []
     for i in range(len(C_L_array)):
+        CL2_array.append(C_L_array[i]**2)
         C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
-        error.append((abs(C_D_calculated[i]-C_D_array[i])/C_D_calculated[i])*100)
+        C_D_calculated_nom.append(CD0_nom + C_L_array[i]**2 / (math.pi*inputs.AR*e_nom))
+    
+    plt.figure()
     plt.plot(C_L_array, C_D_array, label='measured')
-    plt.plot(C_L_array, C_D_calculated, label='calculated')
+    plt.plot(C_L_array, C_D_calculated, label='linear regression')
+    plt.plot(C_L_array, C_D_calculated_nom, label='theoretical values')
     plt.title('CL-CD polar')
     plt.xlabel('CL')
     plt.ylabel('CD')
     plt.legend()
     plt.show()
-
-#    fig, ax1 = plt.subplots()
-#    ax1.set_xlabel('CL')
-#    ax1.set_ylabel('CD')
-#    ax1.plot(C_L_array, C_D_array, color='blue')
-#    ax1.plot(C_L_array, C_D_calculated, color='green')
-#    ax1.tick_params(axis='y', labelcolor='blue')
-#
-#    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-#    ax2.set_ylabel('% error', color='red')  # we already handled the x-label with ax1
-#    ax2.plot(C_L_array, error, color='red')
-#    ax2.tick_params(axis='y', labelcolor='red')
-#
-#    fig.tight_layout()  # otherwise the right y-label is slightly clipped
-#    plt.show()
-
+    
+    plt.figure()
+    plt.plot(CL2_array, C_D_array, label='measured')
+    plt.plot(CL2_array, C_D_calculated, label='linear regression')
+    plt.plot(CL2_array, C_D_calculated_nom, label='theoretical values')
+    plt.title('CL^2-CD polar')
+    plt.xlabel('CL^2')
+    plt.ylabel('CD')
+    plt.legend()
+    plt.show()
     return C_L_array, C_D_array
 
 def lift_curve(measurement_matrix, ref):
@@ -225,7 +189,6 @@ def lift_curve(measurement_matrix, ref):
     Inputs:
      - measurement_matrix = a matrix of the inputs file
      - ref = a bool that is true if the reference data is used and false if the flight test data is used
-
      Outputs:
       - A plot of the alpha values on the x-axis an the C_L values on the y-axis (not returned)
       - Returns an array with the alpha at each measurement point (= row) of the matrix
@@ -236,24 +199,22 @@ def lift_curve(measurement_matrix, ref):
     plt.plot(Alpha_array, C_L_array)
     plt.title('Lift coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [degrees]')
-    plt.ylabel('Lift coefficient [-]')
+    plt.ylabel('Lift coefficient[-]')
     plt.show()
     return Alpha_array, C_L_array
 
-
-def drag_curve(measurement_matrix, reality):
+def drag_curve(measurement_matrix, reality:bool):
     '''
     Inputs:
      - measurement_matrix = a matrix of the inputs file
      - reality = a bool that is true if the flight test data is used and false if the reference data is used
-
      Outputs:
       - A plot of the alpha values on the x-axis an the C_D values on the y-axis (not returned)
       - Returns an array with the alpha at each measurement point (= row) of the matrix
       - Returns an array with the C_D at each measurement point (= row) of the matrix
     '''
     Alpha_array = [row[5] for row in measurement_matrix]
-    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality, not reality)
+    e, CD0, C_D_array = calc_CD_curve(measurement_matrix, reality)
     plt.plot(Alpha_array, C_D_array)
     plt.title('Drag coefficient curve as a function of the angle of attack')
     plt.xlabel('Angle of attack [deg]')
@@ -265,7 +226,6 @@ def elevator_curve_alpha(measurement_matrix):
     '''
     Inputs:
      - measurement_matrix = a matrix of the inputs file
-
      Outputs:
       - A plot of the alpha values on the x-axis an the elevator deflection values on the y-axis (not returned)
       - Returns an array with the alpha at each measurement point (= row) of the matrix
@@ -334,7 +294,7 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 # print(calc_M(inputs.measurement_matrix))
 # print(calc_deltaT(inputs.measurement_matrix))
 # print(calc_CL(inputs.measurement_matrix, ref = True))
-# print(calc_CD_curve(inputs.measurement_matrix, reality = False, ref = True))
+# print(calc_CD_curve(inputs.measurement_matrix, reality = False))
 # print(drag_polar(inputs.measurement_matrix, reality = False))
 # print(lift_curve(inputs.measurement_matrix, ref = True))
 # print(drag_curve(inputs.measurement_matrix, reality = False))
@@ -344,7 +304,7 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 # print(calc_M(inputs.measurement_matrix_real))
 # print(calc_deltaT(inputs.measurement_matrix_real))
 # print(calc_CL(inputs.measurement_matrix_real, ref = False))
-# print(calc_CD_curve(inputs.measurement_matrix_real, reality = True, ref = False))
+# print(calc_CD_curve(inputs.measurement_matrix_real, reality = True))
 # print(drag_polar(inputs.measurement_matrix_real, reality = True))
 # print(lift_curve(inputs.measurement_matrix_real, ref = False))
 # print(drag_curve(inputs.measurement_matrix_real, reality = True))
@@ -354,30 +314,6 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 
 
 if __name__ == '__main__':
-    """
-    calcM Test 1
-    At ISA 0ft values, a list of M values is given V values
-    https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
-    """
-    x = np.array([[0,0,0,0,100,0,0,0,0,288.15], [0,0,0,0,200,0,0,0,0,288.15]])
-    y = [100/math.sqrt(1.401*287.057*288.15), 200/math.sqrt(1.401*287.057*288.15)]
-    x2 = np.array([[0,0,0,0,0,0,0,0,0,288.15]])
-    y2 = [0]
-    for i in range(len(y)):
-        almost_equal_perc(calc_M(x)[i], y[i], 0.1, True)
-    for i in range(len(x2)):
-        almost_equal_abs(calc_M(x2)[i], y2[i], 10**(-2), True)
-
-    """
-    calcdeltaT Test 1
-    Difference between T_ISA equation and ISA from online sources should be small
-    https://www.digitaldutch.com/atmoscalc/
-    """
-    x = np.array([[0,0,0,0,0,0,0,0,0,288.15], [0,0,0,1000,0,0,0,0,0,281.650], [0,0,0,10000,0,0,0,0,0,223.150]])
-    y = [0, 0, 0]
-    for i in range(len(x)):
-        almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2), True)
-
     """
     calcCL Test 1
     Calculates CL for standard values, 0 altitude is taken to not confound with V_red test
@@ -392,9 +328,9 @@ if __name__ == '__main__':
     Calculates CD for standard values, 0 altitude is taken to not confound with V_red test
     """
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
-    y = [7715.38/(0.5*1.225*100*100*30), 6293.42/(0.5*1.225*50*50*30)]
+    y = [7859.82/(0.5*1.225*100*100*30), 6066.2/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        print(calc_CD_curve(x, True, False), y, almost_equal_perc(calc_CD_curve(x, True, False)[2][i], y[i], 0.1, True))
+        print(calc_CD_curve(x, False), y, almost_equal_perc(calc_CD_curve(x, False)[2][i], y[i], 0.1, True))
 
     """
     elevator_alpha Test 1
