@@ -62,20 +62,6 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
 
-def calc_M(measurement_matrix):
-    '''
-    Inputs:
-     - measurement_matrix = a matrix of the inputs file
-     Outputs:
-      - An array with the Mach number at each measurement point (= row) of the matrix
-    '''
-    M_array = []
-    for row in measurement_matrix:
-        M = row[4]/math.sqrt(inputs.gamma*inputs.R*row[9])
-        M_array.append(M)
-    return M_array
-
-
 def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
     p   = inputs.p_0*(1+inputs.a_layer*meas_matrix[:,3]/inputs.T_0)**(-inputs.g_0/(inputs.R*inputs.a_layer))
     M   = np.sqrt((2/(inputs.gamma-1))*((1+inputs.p_0/p*((1+(inputs.gamma-1)/(2*inputs.gamma)*inputs.rho_0/inputs.p_0*meas_matrix[:,4]**2)**(inputs.gamma/(inputs.gamma-1))-1))**((inputs.gamma-1)/inputs.gamma)-1))
@@ -98,22 +84,6 @@ def de_red(meas_mat: np.ndarray, c_md: float, Tcs: np.ndarray, Tc: np.ndarray):
     c_mtc = -0.0064
 
     return meas_mat[:, 6] - (c_mtc/c_md)*(Tcs-Tc)
-
-
-def calc_deltaT(measurement_matrix):
-    '''
-    Inputs:
-     - measurement_matrix = a matrix of the inputs file
-     Outputs:
-      - An array with the temperature differential with ISA at each measurement point (= row) of the matrix
-    '''
-    deltaT_array = []
-    for row in measurement_matrix:
-        T_ISA = inputs.T_0 + (row[3]*inputs.a_layer)
-        T_delta = T_ISA-row[9]
-        deltaT_array.append(T_delta)
-    return deltaT_array
-
 
 def calc_CL(measurement_matrix, ref):
     '''
@@ -161,7 +131,7 @@ def calc_CD_curve(measurement_matrix, reality:bool):
         CD_array.append(D_array[i]/(0.5*rho*V_e_array[i]**2*inputs.S))
         CL2_array.append(CL_array[i]**2)
     if reality:
-        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-2],CD_array[0:-2])
+        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array[0:-1],CD_array[0:-1])
 #        slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
     else:
         slope, CD0, r_value, p_value, std_err = stats.linregress(CL2_array,CD_array)
@@ -343,30 +313,6 @@ def red_force_curve(trim_mat:np.ndarray, ref: bool):
 
 
 if __name__ == '__main__':
-    """
-    calcM Test 1
-    At ISA 0ft values, a list of M values is given V values
-    https://www.engineeringtoolbox.com/specific-heat-ratio-d_602.html
-    """
-    x = np.array([[0,0,0,0,100,0,0,0,0,288.15], [0,0,0,0,200,0,0,0,0,288.15]])
-    y = [100/math.sqrt(inputs.gamma*inputs.R*inputs.T_0), 200/math.sqrt(inputs.gamma*inputs.R*inputs.T_0)]
-    x2 = np.array([[0,0,0,0,0,0,0,0,0,288.15]])
-    y2 = [0]
-    for i in range(len(y)):
-        almost_equal_perc(calc_M(x)[i], y[i], 0.1, True)
-    for i in range(len(x2)):
-        almost_equal_abs(calc_M(x2)[i], y2[i], 10**(-2), True)
-
-    """
-    calcdeltaT Test 1
-    Difference between T_ISA equation and ISA from online sources should be small
-    https://www.digitaldutch.com/atmoscalc/
-    """
-    x = np.array([[0,0,0,0,0,0,0,0,0,288.15], [0,0,0,1000,0,0,0,0,0,281.650], [0,0,0,10000,0,0,0,0,0,223.150]])
-    y = [0, 0, 0]
-    for i in range(len(x)):
-        almost_equal_abs(calc_deltaT(x)[i], y[i], 10**(-2), True)
-
     """
     calcCL Test 1
     Calculates CL for standard values, 0 altitude is taken to not confound with V_red test
