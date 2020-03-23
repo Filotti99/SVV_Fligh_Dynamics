@@ -8,33 +8,33 @@ import math
 
 #Unit conversions
 def kts2mps(vInKts):
-	return 0.514444 * vInKts
+    return 0.514444 * vInKts
 
 def deg2rad(angleInDeg):
-	return np.radians(angleInDeg)
+    return np.radians(angleInDeg)
 
 def lbs2Kg(weightInLbs):
-	return 0.453592 * weightInLbs
+    return 0.453592 * weightInLbs
 
 def celsius2K(tempInCelsius):
-	return tempInCelsius + 273.15
+    return tempInCelsius + 273.15
 
 def getInitialCondition(path,fileName,index):
-	file = open(path+fileName)
-	lines = file.readlines()
-	file.close()
-	data = np.genfromtxt(lines)
-	return data[index]
+    file = open(path+fileName)
+    lines = file.readlines()
+    file.close()
+    data = np.genfromtxt(lines)
+    return data[index]
 
 def getData(path,fileName,startIndex,endIndex):
-	file = open(path+fileName)
-	lines = file.readlines()
-	file.close()
-	data = np.genfromtxt(lines)
-	return data[startIndex:endIndex]
+    file = open(path+fileName)
+    lines = file.readlines()
+    file.close()
+    data = np.genfromtxt(lines)
+    return data[startIndex:endIndex]
 
 def minutes2Seconds(minutes):
-	return 60 * minutes
+    return 60 * minutes
 
 #Standard atmosphere
 g = 9.80665
@@ -176,34 +176,34 @@ Cm_delta_e = -1.216
 
 ### Equation of Motion Matrices - V2 ###
 C1sym = D_c*np.matrix([[-2*mu_c			,						0,								0,											0],
-						[0,										(Cz_alpha_dot-2*mu_c),			0,											0],
-						[0,										0,								-1		,									0],
-						[0,										Cm_alpha_dot		,			0,											-2*mu_c*Ky**2]])
+                        [0,										(Cz_alpha_dot-2*mu_c),			0,											0],
+                        [0,										0,								-1		,									0],
+                        [0,										Cm_alpha_dot		,			0,											-2*mu_c*Ky**2]])
 
 C2sym = np.matrix([[Cx_u,									Cx_alpha,						Cz_0,										Cx_q],
-				   [Cz_u,									Cz_alpha,						-Cx_0,										Cz_q+2*mu_c],
-				   [0,										0,								0,											1],
-				   [Cm_u,									Cm_alpha,						0,											Cm_q]])
+                   [Cz_u,									Cz_alpha,						-Cx_0,										Cz_q+2*mu_c],
+                   [0,										0,								0,											1],
+                   [Cm_u,									Cm_alpha,						0,											Cm_q]])
 
 C3sym = np.matrix([[Cx_delta_e],
-				   [Cz_delta_e],
-				   [0],
-				   [Cm_delta_e]])
+                   [Cz_delta_e],
+                   [0],
+                   [Cm_delta_e]])
 
 C1asym = D_b* np.matrix([[(Cy_beta_dot-2*mu_b),					0,								0,											0],
-						[0,										-0.5,							0,											0],
-						[0,										0,								-4*mu_b*Kx**2,								4*mu_b*Kxz],
-						[Cn_beta_dot,							0,								4*mu_b*Kxz,									-4*mu_b*Kz**2]])
+                        [0,										-0.5,							0,											0],
+                        [0,										0,								-4*mu_b*Kx**2,								4*mu_b*Kxz],
+                        [Cn_beta_dot,							0,								4*mu_b*Kxz,									-4*mu_b*Kz**2]])
 
 C2asym = np.matrix([[Cy_beta,								CL,								Cy_p,										Cy_r - 4*mu_b],
-					[0,										0,								1,											0],
-					[Cl_beta,								0,								Cl_p,										Cl_r],
-					[Cn_beta,								0,								Cn_p,										Cn_r]])
+                    [0,										0,								1,											0],
+                    [Cl_beta,								0,								Cl_p,										Cl_r],
+                    [Cn_beta,								0,								Cn_p,										Cn_r]])
 
 C3asym = np.matrix([[Cy_delta_a,							Cy_delta_r],
-					[0,										0],
-					[Cl_delta_a,							Cl_delta_r],
-					[Cn_delta_a,							Cn_delta_r]])
+                    [0,										0],
+                    [Cl_delta_a,							Cl_delta_r],
+                    [Cn_delta_a,							Cn_delta_r]])
 
 Asym = -np.linalg.inv(C1sym)*C2sym
 Bsym = -np.linalg.inv(C1sym)*C3sym
@@ -215,40 +215,40 @@ Basym = -np.linalg.inv(C1asym)*C3asym
 
 
 def PrintAB(ShouldPrint):
-	'''
-	Can be used to print the A and B matrices of both the symmetric and asymmetric motions
-	:param ShouldPrint: True/False - determines if the matrices will be printed
-	:return: Nothing (it does print stuff though :D )
-	'''
-	if ShouldPrint is True:
-		print("symmetric: ")
-		print("A: ", Asym)
-		print("B: ", Bsym)
-		print(V / chord)
+    '''
+    Can be used to print the A and B matrices of both the symmetric and asymmetric motions
+    :param ShouldPrint: True/False - determines if the matrices will be printed
+    :return: Nothing (it does print stuff though :D )
+    '''
+    if ShouldPrint is True:
+        print("symmetric: ")
+        print("A: ", Asym)
+        print("B: ", Bsym)
+        print(V / chord)
 
-		print("Asymmetric: ")
-		print("A: ", Aasym)
-		print("B: ", Basym)
+        print("Asymmetric: ")
+        print("A: ", Aasym)
+        print("B: ", Basym)
 
 def PrintStabilityDerivatives(ShouldPrint):
-	'''
-	Can be used to print a selection of stability derivatives
-	:param ShouldPrint: if True, the derivatives will be printed
-	:return: None (it does print stuff though :D )
-	'''
-	if ShouldPrint is True:
-		print("debug: ")
-		print("cy_beta_dot = ", Cy_beta_dot)
-		print("mu_b = ", mu_b)
-		print("Cn_bet_dot = ", Cn_beta_dot)
-		print("Kx = ", Kx)
-		print("Kz = ", Kz)
-		print("Kxz = ", Kxz)
-		print("Db = ", D_b)
+    '''
+    Can be used to print a selection of stability derivatives
+    :param ShouldPrint: if True, the derivatives will be printed
+    :return: None (it does print stuff though :D )
+    '''
+    if ShouldPrint is True:
+        print("debug: ")
+        print("cy_beta_dot = ", Cy_beta_dot)
+        print("mu_b = ", mu_b)
+        print("Cn_bet_dot = ", Cn_beta_dot)
+        print("Kx = ", Kx)
+        print("Kz = ", Kz)
+        print("Kxz = ", Kxz)
+        print("Db = ", D_b)
 
-		print("C1-1 = ", np.linalg.inv(C1asym))
+        print("C1-1 = ", np.linalg.inv(C1asym))
 
-		print("C2 = ", C2asym)
+        print("C2 = ", C2asym)
 
 
 Csym = np.matrix(np.identity(4))
@@ -256,13 +256,13 @@ Casym = np.matrix(np.identity(4))
 
 
 Dsym = np.matrix([[0],
-				  [0],
-				  [0],
-				  [0]])
+                  [0],
+                  [0],
+                  [0]])
 Dasym = np.matrix([[0,0],
-				   [0,0],
-				   [0,0],
-				   [0,0]])
+                   [0,0],
+                   [0,0],
+                   [0,0]])
 
 systemSym = ml.ss(Asym, Bsym, Csym, Dsym)
 systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
@@ -276,8 +276,8 @@ Uin = deg2rad(getData(path,"Deflection_of_elevator[deg].csv",indexStart,indexEnd
 Uin = Uin - Uin[0]
 print(Uin)
 
-plt.figure()
-plt.plot(Tin,np.degrees(Uin))
+#plt.figure()
+#plt.plot(Tin,np.degrees(Uin))
 
 print(len(Tin),len(Uin))
 
@@ -303,15 +303,16 @@ yAsym[3] = yAsym[3] * ((2*u_0)/span)
 
 
 def PrintEigvals(ShouldPrint):
-	'''
-	Can be used to print the eigenvalues of the symmetric and asymmetric systems
-	:param ShouldPrint: if True, the eigenvalues will be printed
-	:return: None (it does print stuff though :D )
-	'''
-	if ShouldPrint is True:
-		print("Eigenvalues symmetric case: \n", np.linalg.eigvals(systemSym.A))
-		print("Eigenvalues asymmetric case: \n", np.linalg.eigvals(systemAsym.A))
+    '''
+    Can be used to print the eigenvalues of the symmetric and asymmetric systems
+    :param ShouldPrint: if True, the eigenvalues will be printed
+    :return: None (it does print stuff though :D )
+    '''
+    if ShouldPrint is True:
+        print("Eigenvalues symmetric case: \n", np.linalg.eigvals(systemSym.A))
+        print("Eigenvalues asymmetric case: \n", np.linalg.eigvals(systemAsym.A))
 
+### “In the beginning the Universe was created. This had made many people very angry and has been widely regarded as a bad move.” - Douglas Adams, The Hitchhiker's Guide to the Galaxy###
 
 def PlotSym(ShouldPlot, t_min, t_max):
     '''
@@ -336,157 +337,219 @@ def PlotSym(ShouldPlot, t_min, t_max):
         with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
             for data_point in file.readlines():
                 y.append(float(data_point.strip()))
-                print(float(data_point.strip()))
         return y[idx_min:idx_max]
 
     if ShouldPlot is True:
         plt.figure()
         plt.subplot(2, 2, 1)
-        plt.plot(TSym, ySym[0])
-        plt.plot(t_measured, generate_data("True Airspeed[knots]"))
+        plt.plot(TSym, ySym[0], label = 'approximate')
+        plt.plot(t_measured, generate_data("True Airspeed[knots]"), label = 'measured')
+        plt.legend()
         plt.grid()
         plt.ylabel("u")
         plt.subplot(2, 2, 2)
-        plt.plot(TSym, ySym[1])
-        plt.plot(t_measured, generate_data("Angle of attack[deg]"))
+        plt.plot(TSym, ySym[1], label = 'approximate')
+        plt.plot(t_measured, generate_data("Angle of attack[deg]"), label = 'measured')
+        plt.legend()
         plt.grid()
         plt.ylabel("alpha")
         plt.subplot(2, 2, 3)
-        plt.plot(TSym, ySym[2])
-        plt.plot(t_measured, generate_data("Pitch Angle[deg]"))
+        plt.plot(TSym, ySym[2], label = 'approximate')
+        plt.plot(t_measured, generate_data("Pitch Angle[deg]"), label = 'measured')
+        plt.legend()
         plt.grid()
         plt.ylabel("theta")
         plt.subplot(2, 2, 4)
-        plt.plot(TSym, ySym[3])
-        plt.plot(t_measured, generate_data("Body Pitch Rate[deg_p_s]"))
+        plt.plot(TSym, ySym[3], label = 'approximate')
+        plt.plot(t_measured, generate_data("Body Pitch Rate[deg_p_s]"), label = 'measured')
+        plt.legend()
         plt.grid()
         plt.ylabel("q")
 
 
 def PlotAsym(ShouldPlot, t_min, t_max):
-	'''
-	Can be used to plot the response of the symmetric system to a disturbance
-	:param ShouldPlot: if True, will plot the response
-	:return: None (it does plot stuff though :D )
-	'''
-	if ShouldPlot is True:
-		plt.figure()
-		plt.subplot(2, 2, 1)
-		plt.plot(TSym, yAsym[0])
-		plt.grid()
-		plt.ylabel("sideslip")
-		plt.subplot(2, 2, 3)
-		plt.plot(TSym, yAsym[1])
-		plt.grid()
-		plt.ylabel("roll angle")
-		plt.subplot(2, 2, 2)
-		plt.plot(TSym, yAsym[2])
-		plt.grid()
-		plt.ylabel("roll rate")
-		plt.subplot(2, 2, 4)
-		plt.plot(TSym, yAsym[3])
-		plt.grid()
-		plt.ylabel("yaw rate")
+    '''
+    Can be used to plot the response of the symmetric system to a disturbance
+    :param ShouldPlot: if True, will plot the response
+    :return: None (it does plot stuff though :D )
+    '''
 
+    t_measured = []
+    with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+        i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
+        t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
+        for t_point in t_data.readlines():
+            t_measured.append(float(t_point.strip()) - t_0 - t_min + (i%10)/10)
+            i += 1
+    idx_min = int(t_min*10)
+    idx_max = int(t_max*10)
+    t_measured = t_measured[idx_min:idx_max]
 
-def PlotFlightData(t_min, t_max, *filenames):
-	t = []
+    def generate_data(filename):
+        y = []
+        with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
+            for data_point in file.readlines():
+                y.append(float(data_point.strip()))
+        return y[idx_min:idx_max]
+
+    if ShouldPlot is True:
+        plt.figure()
+        plt.subplot(2, 2, 1)
+        plt.plot(TAsym, yAsym[0], label = 'approximate')
+        plt.plot(t_measured, generate_data("True Airspeed[knots]"), label = 'measured') #PLOTTING A DIFFERENT VALUE AS I DO NOT HAVE A FILE FOR SIDESLIP ANGLE
+        plt.legend()
+        plt.grid()
+        plt.ylabel("sideslip")
+        plt.subplot(2, 2, 2)
+        plt.plot(TAsym, yAsym[1], label = 'approximate')
+        plt.plot(t_measured, generate_data("Body Roll Rate[deg_p_s]"), label = 'measured')
+        plt.legend()
+        plt.grid()
+        plt.ylabel("roll rate")
+        plt.subplot(2, 2, 3)
+        plt.plot(TAsym, yAsym[2], label = 'approximate')
+        plt.plot(t_measured, generate_data("Roll Angle[deg]"), label = 'measured')
+        plt.legend()
+        plt.grid()
+        plt.ylabel("roll angle")
+        plt.subplot(2, 2, 4)
+        plt.plot(TAsym, yAsym[3], label = 'approximate')
+        plt.plot(t_measured, generate_data("Body Yaw Rate[deg_p_s]"), label = 'measured')
+        plt.legend()
+        plt.grid()
+        plt.ylabel("yaw rate")
+
+# def PlotFlightData(t_min, t_max, *filenames):
+#     t = []
+#     with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+#         i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
+#         t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
+#         for t_point in t_data.readlines():
+#             t.append(float(t_point.strip()) - t_0 - t_min/10 + (i%10)/10)
+#             i += 1
+#             #print(t[-1])
+#
+#     size1 = math.ceil(math.sqrt(len(filenames)))
+#     size2 = round(math.sqrt(len(filenames)))
+#     index = 0
+#     plt.figure()
+#     for filename in filenames:
+#         index += 1
+#         with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
+#             y = []
+#             for data_point in file.readlines():
+#                 y.append(float(data_point.strip()))
+#             plt.subplot(size1, size2, index)
+#             plt.grid(True)
+#             plt.plot(t[t_min:t_max], y[t_min:t_max])
+#             plt.ylabel(filename)
+#             plt.xlabel('Time Since Begin Observation [sec]')
+#     #plt.show()
+
+def PlotInputs(ShouldPlot, t_min, t_max):
+	t_measured = []
 	with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
-		i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
-		t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
+		i = 3  # time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
+		t_0 = 39568.5  # the initial time as seen in 'UTC Seconds [sec]'
 		for t_point in t_data.readlines():
-			t.append(float(t_point.strip()) - t_0 - t_min/10 + (i%10)/10)
+			t_measured.append(float(t_point.strip()) - t_0 - t_min + (i % 10) / 10)
 			i += 1
-			#print(t[-1])
+	idx_min = int(t_min * 10)
+	idx_max = int(t_max * 10)
+	t_measured = t_measured[idx_min:idx_max]
 
-	size1 = math.ceil(math.sqrt(len(filenames)))
-	size2 = round(math.sqrt(len(filenames)))
-	index = 0
-	plt.figure()
-	for filename in filenames:
-		index += 1
+	def generate_data(filename):
+		y = []
 		with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
-			y = []
 			for data_point in file.readlines():
 				y.append(float(data_point.strip()))
-			plt.subplot(size1, size2, index)
-			plt.grid(True)
-			plt.plot(t[t_min:t_max], y[t_min:t_max])
-			plt.ylabel(filename)
-			plt.xlabel('Time Since Begin Observation [sec]')
-    #plt.show()
+		return y[idx_min:idx_max]
+	if ShouldPlot is True:
+		plt.figure()
+		plt.subplot(1, 3, 1)
+		plt.plot(TSym, Uin[:], label="numerical")
+		plt.plot(t_measured, generate_data('Deflection of elevator trim[deg]'), label ='actual')
+		plt.legend()
+		plt.grid()
+		plt.ylabel('Elevator deflection [deg]')
+		plt.subplot(1, 3, 2)
+		plt.plot(TAsym, UinAsym[:,0], label='numerical')
+		plt.plot(t_measured, generate_data('Deflection of aileron (right wing)[deg]'), label='actual')
+		plt.ylabel('Aileron deflection [deg]')
+		plt.legend()
+		plt.grid()
+		plt.ylabel('Aileron deflection (right wing)[deg]')
+		plt.subplot(1, 3, 3)
+		plt.plot(TAsym, UinAsym[:, 1], label='numerical')
+		plt.plot(t_measured, generate_data('Deflection of rudder[deg]'), label='actual')
+		plt.legend()
+		plt.grid()
 
-PlotFlightData(indexStart, indexEnd, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
+#PlotFlightData(indexStart, indexEnd, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
 PrintAB(False)
 PrintStabilityDerivatives(False)
-PrintEigvals(True)
+PrintEigvals(False)
 PlotSym(True, tStart, tEnd)
 PlotAsym(True, tStart, tEnd)
+PlotInputs(True, tStart, tEnd)
 
 def ShortPeriodOscillation():
-	print("Short Period Oscillation")
-	sa1 = -2 * mu_c * Ky ** 2 * (Cz_alpha_dot - 2 * mu_c)
-	sb1 = -2 * mu_c * Ky ** 2 * Cz_alpha + Cm_q * (Cz_alpha_dot - 2 * mu_c) - Cm_alpha_dot * (Cz_q + 2 * mu_c)
-	sc1 = Cz_alpha * Cm_q - Cm_alpha * (Cz_q + 2 * mu_c)
-	#Ja echt Ivo wat is dit voor form? #Nou Max s staat voor symmetrich, a,b en c voor de coefficienten in ax^2+bx+c respectievelijk en 1 en 2 staat voor welke eigenvalue het is, logisch toch?
-	print("Lambda1 ", (V / chord) * (-sb1 - cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
-	print("Lambda2 ", (V / chord) * (-sb1 + cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
-	print()
+    print("Short Period Oscillation")
+    sa1 = -2 * mu_c * Ky ** 2 * (Cz_alpha_dot - 2 * mu_c)
+    sb1 = -2 * mu_c * Ky ** 2 * Cz_alpha + Cm_q * (Cz_alpha_dot - 2 * mu_c) - Cm_alpha_dot * (Cz_q + 2 * mu_c)
+    sc1 = Cz_alpha * Cm_q - Cm_alpha * (Cz_q + 2 * mu_c)
+    #Ja echt Ivo wat is dit voor form? #Nou Max s staat voor symmetrich, a,b en c voor de coefficienten in ax^2+bx+c respectievelijk en 1 en 2 staat voor welke eigenvalue het is, logisch toch?
+    print("Lambda1 ", (V / chord) * (-sb1 - cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
+    print("Lambda2 ", (V / chord) * (-sb1 + cmath.sqrt(sb1 ** 2 - 4 * sa1 * sc1)) / (2 * sa1))
+    print()
 
 def PhugoidMotion():
-	print("Phugoid Motion")
-	sa2 = 2 * mu_c * ((Cz_alpha * Cm_q) - 2 * mu_c * Cm_alpha)
-	sb2 = 2 * mu_c * ((Cx_u * Cm_alpha) - Cm_u * Cx_alpha) + Cm_q * ((Cz_u * Cx_alpha) - (Cx_u * Cz_alpha))
-	sc2 = Cz_0 * ((Cm_u * Cz_alpha) - (Cz_u * Cm_alpha))
+    print("Phugoid Motion")
+    sa2 = 2 * mu_c * ((Cz_alpha * Cm_q) - 2 * mu_c * Cm_alpha)
+    sb2 = 2 * mu_c * ((Cx_u * Cm_alpha) - Cm_u * Cx_alpha) + Cm_q * ((Cz_u * Cx_alpha) - (Cx_u * Cz_alpha))
+    sc2 = Cz_0 * ((Cm_u * Cz_alpha) - (Cz_u * Cm_alpha))
 
-	lambda21 = (-sb2 - cmath.sqrt(sb2 ** 2 - 4 * sa2 * sc2)) / (2 * sa2)
-	lambda22 = (-sb2 + cmath.sqrt(sb2 ** 2 - 4 * sa2 * sc2)) / (2 * sa2)
-	print("Lambda1 ", ((V / chord) * lambda21))
-	print("Lambda2 ", ((V / chord) * lambda22))
-	print()
-
-
-
-
+    lambda21 = (-sb2 - cmath.sqrt(sb2 ** 2 - 4 * sa2 * sc2)) / (2 * sa2)
+    lambda22 = (-sb2 + cmath.sqrt(sb2 ** 2 - 4 * sa2 * sc2)) / (2 * sa2)
+    print("Lambda1 ", ((V / chord) * lambda21))
+    print("Lambda2 ", ((V / chord) * lambda22))
+    print()
 
 def HeavilyDampedAperiodicRollingMotion():
-	Lambda_b1= V/span * Cl_p/(4*mu_b*Kx**2)
-	print("Heavily Damped Aperiodic Rolling Motion:")
-	print("Lambda_b1: ", Lambda_b1)
-	print()
+    Lambda_b1= V/span * Cl_p/(4*mu_b*Kx**2)
+    print("Heavily Damped Aperiodic Rolling Motion:")
+    print("Lambda_b1: ", Lambda_b1)
+    print()
 
 def DutchRollMotion():
-	A = 8*mu_b**2 * Kz**2
-	B = -2*mu_b*(Cn_r + 2*Kz**2 *Cy_beta)
-	C = 4*mu_b*Cn_beta + Cy_beta*Cn_r
-	Lambda1 = V/span * (-B + cmath.sqrt(B ** 2 - 4 * A * C)) / (2 * A)
-	Lambda2 = V/span * (-B - cmath.sqrt(B ** 2 - 4 * A * C)) / (2 * A)
-	print("Dutch Roll Motion")
-	print("Lambda1: ", Lambda1)
-	print("Lambda2: ", Lambda2)
-	print()
+    A = 8*mu_b**2 * Kz**2
+    B = -2*mu_b*(Cn_r + 2*Kz**2 *Cy_beta)
+    C = 4*mu_b*Cn_beta + Cy_beta*Cn_r
+    Lambda1 = V/span * (-B + cmath.sqrt(B ** 2 - 4 * A * C)) / (2 * A)
+    Lambda2 = V/span * (-B - cmath.sqrt(B ** 2 - 4 * A * C)) / (2 * A)
+    print("Dutch Roll Motion")
+    print("Lambda1: ", Lambda1)
+    print("Lambda2: ", Lambda2)
+    print()
 
 def AperiodicSpiralMotion():
-	Lambda_b4 = V/span* (2*CL*(Cl_beta*Cn_r - Cn_beta*Cl_r))/(Cl_p*(Cy_beta*Cn_r + 4*mu_b*Cn_beta) - Cn_p*(Cy_beta*Cl_r + 4*mu_b*Cl_beta))
-	print("AperiodicSpiralMotion")
-	print("Lambda_b4: ", Lambda_b4)
-	print()
+    Lambda_b4 = V/span* (2*CL*(Cl_beta*Cn_r - Cn_beta*Cl_r))/(Cl_p*(Cy_beta*Cn_r + 4*mu_b*Cn_beta) - Cn_p*(Cy_beta*Cl_r + 4*mu_b*Cl_beta))
+    print("AperiodicSpiralMotion")
+    print("Lambda_b4: ", Lambda_b4)
+    print()
 
 def DutchRollMotionAndAperiodicRollingMotion():
-	A = 4*mu_b**2 *(Kx**2 * Kz**2 - Kxz**2)
-	B = -mu_b*((Cl_r+Cn_p)*Kxz + Cn_r*Kx**2 + Cl_p*Kz**2)
-	C = 2*mu_b*(Cl_beta*Kxz+Cn_beta*Kx**2) + 1/4*(Cl_p*Cn_r - Cn_p*Cl_r)
-	D = 1/2 * (Cl_beta*Cn_p - Cn_beta*Cl_p)
-	Lambda1, Lambda2, Lambda3 = V/span * np.roots([A, B, C, D])
+    A = 4*mu_b**2 *(Kx**2 * Kz**2 - Kxz**2)
+    B = -mu_b*((Cl_r+Cn_p)*Kxz + Cn_r*Kx**2 + Cl_p*Kz**2)
+    C = 2*mu_b*(Cl_beta*Kxz+Cn_beta*Kx**2) + 1/4*(Cl_p*Cn_r - Cn_p*Cl_r)
+    D = 1/2 * (Cl_beta*Cn_p - Cn_beta*Cl_p)
+    Lambda1, Lambda2, Lambda3 = V/span * np.roots([A, B, C, D])
 
-	print("Dutch Roll Motion and Aperiodic Rolling Motion")
-	print("Lambda1: ", Lambda1)
-	print("Lambda2: ", Lambda2)
-	print("Lambda3: ", Lambda3)
-	print()
-
-
-
+    print("Dutch Roll Motion and Aperiodic Rolling Motion")
+    print("Lambda1: ", Lambda1)
+    print("Lambda2: ", Lambda2)
+    print("Lambda3: ", Lambda3)
+    print()
 
 
 ShortPeriodOscillation()
