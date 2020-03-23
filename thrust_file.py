@@ -33,4 +33,4 @@ thrust_trim_matrix_nominal = np.transpose(np.array([inputs.trim_matrix[:,3], cal
 thrust_trim_matrix_real = np.transpose(np.array([inputs.trim_matrix_real[:,3], calc_M(inputs.trim_matrix_real), calc_deltaT(inputs.trim_matrix_real), inputs.trim_matrix_real[:,9], inputs.trim_matrix_real[:,10] ]))
 thrust_trim_matrix_real_nominal = np.transpose(np.array([inputs.trim_matrix_real[:,3], calc_M(inputs.trim_matrix_real), calc_deltaT(inputs.trim_matrix_real), m_dot_fs_trim, m_dot_fs_trim ]))
 
-thrust_input = np.savetxt("matlab.DAT", thrust_trim_matrix_real_nominal, fmt="%.6f", delimiter=" ")
+thrust_input = np.savetxt("matlab.DAT", thrust_matrix_real, fmt="%.6f", delimiter=" ")
