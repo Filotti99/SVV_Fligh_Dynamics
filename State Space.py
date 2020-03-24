@@ -36,6 +36,19 @@ def getData(path,fileName,startIndex,endIndex):
 def minutes2Seconds(minutes):
     return 60 * minutes
 
+def calculateSideslip():
+		file = open(path+ "Body Yaw Rate[deg_p_s].csv")
+		lines = file.readlines()
+		file.close()
+
+		yawRates = np.genfromtxt(lines)[indexStart:indexEnd]
+		sideslip = [beta_0]
+		print(sideslip)
+		for i in range(1,len(yawRates)):
+			sideslip.append(yawRates[i]*dt + sideslip[-1])
+
+		return np.array(sideslip)
+
 #Standard atmosphere
 g = 9.80665
 T0 = 288.15
@@ -44,13 +57,17 @@ rho_0 = 1.225
 R = 287
 m0 = 5832.05389
 
-tStart = minutes2Seconds(58)
-tEnd = minutes2Seconds(60)
-indexStart = 10*tStart
-indexEnd  = 10*tEnd
 
-path = r"flight_data\matlab_files\\"
+
+tStart = minutes2Seconds(57)
+tEnd = minutes2Seconds(58)
+dt = 0.1
+indexStart = int((1/dt)*tStart)
+indexEnd  = int((1/dt)*tEnd)
+
+path = r"C:\Users\Ivo Janssen\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\"
 print("Program initiated with Path: ", path)
+
 
 
 span = 15.911
@@ -83,7 +100,6 @@ beta_0 = 0
 phi_0 = deg2rad(getInitialCondition(path,"Roll Angle[deg].csv",indexStart))
 p_0 = deg2rad(getInitialCondition(path,"Body Roll Rate[deg_p_s].csv",indexStart))*(span/(2*V))
 r_0 = deg2rad(getInitialCondition(path,"Body Yaw Rate[deg_p_s].csv", indexStart))*(span/(2*V))
-
 
 
 mu_b = mass / (density*S*span)
@@ -200,10 +216,10 @@ C2asym = np.matrix([[Cy_beta,								CL,								Cy_p,										Cy_r - 4*mu_b],
                     [Cl_beta,								0,								Cl_p,										Cl_r],
                     [Cn_beta,								0,								Cn_p,										Cn_r]])
 
-C3asym = np.matrix([[Cy_delta_a,							Cy_delta_r],
+C3asym = np.matrix([[-Cy_delta_a,							Cy_delta_r],
                     [0,										0],
-                    [Cl_delta_a,							Cl_delta_r],
-                    [Cn_delta_a,							Cn_delta_r]])
+                    [-Cl_delta_a,							Cl_delta_r],
+                    [-Cn_delta_a,							Cn_delta_r]])
 
 Asym = -np.linalg.inv(C1sym)*C2sym
 Bsym = -np.linalg.inv(C1sym)*C3sym
@@ -273,8 +289,8 @@ Tin = np.arange(0,tEnd-tStart,0.1)
 
 
 Uin = deg2rad(getData(path,"Deflection_of_elevator[deg].csv",indexStart,indexEnd))
-Uin = Uin - Uin[0]
-print(Uin)
+#Uin = Uin - Uin[0]
+#print(Uin)
 
 #plt.figure()
 #plt.plot(Tin,np.degrees(Uin))
@@ -291,14 +307,24 @@ ySym[2] = (ySym[2]+theta_0) * 180/np.pi
 ySym[3] = ((ySym[3]*(u_0 / chord))+q_0)*180/np.pi
 
 #yAsym, TAsym = ml.impulse(systemAsym,X0=[0,0,0,0],T=Tin,input = 0)
-UinAsym = np.zeros(((tEnd-tStart)*10,2))
-UinAsym[0:100,0] = np.radians(10)
-UinAsym[101:200, 0] = np.radians(-10)
+
+Uaileron = deg2rad(getData(path,"Deflection of aileron (right wing)[deg].csv",indexStart,indexEnd))
+Urudder = deg2rad(getData(path,"Deflection of rudder[deg].csv",indexStart,indexEnd))
+UinAsym = np.zeros((len(Urudder),2))
+UinAsym[:,0] = Uaileron
+UinAsym[:,1] = Urudder
+
+#UinAsym = np.zeros((indexEnd-indexStart,2))
+#UinAsym[:5,0] = np.radians(5)
+
 
 TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(UinAsym),X0=[0,0,0,0])
 
-yAsym[2] = yAsym[2] * ((2*u_0)/span)
-yAsym[3] = yAsym[3] * ((2*u_0)/span)
+yAsym[0] = np.degrees((yAsym[0]+beta_0))
+yAsym[1] = np.degrees((yAsym[1]+phi_0))
+yAsym[2] = np.degrees((yAsym[2] * ((2*u_0)/span))+(p_0*2*u_0)/span)
+print(r_0)
+yAsym[3] = np.degrees((yAsym[3] * ((2*u_0)/span))+(r_0*2*u_0)/span)
 
 
 
@@ -322,7 +348,7 @@ def PlotSym(ShouldPlot, t_min, t_max):
     '''
 
     t_measured = []
-    with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+    with open(path + "UTC Seconds[sec].csv") as t_data:
         i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
         t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
         for t_point in t_data.readlines():
@@ -334,7 +360,7 @@ def PlotSym(ShouldPlot, t_min, t_max):
 
     def generate_data(filename):
         y = []
-        with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
+        with open(path + filename + ".csv") as file:
             for data_point in file.readlines():
                 y.append(float(data_point.strip()))
         return y[idx_min:idx_max]
@@ -375,7 +401,7 @@ def PlotAsym(ShouldPlot, t_min, t_max):
     '''
 
     t_measured = []
-    with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+    with open(path + "UTC Seconds[sec].csv") as t_data:
         i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
         t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
         for t_point in t_data.readlines():
@@ -387,27 +413,29 @@ def PlotAsym(ShouldPlot, t_min, t_max):
 
     def generate_data(filename):
         y = []
-        with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
+        with open(path + filename + ".csv") as file:
             for data_point in file.readlines():
                 y.append(float(data_point.strip()))
+
+        
         return y[idx_min:idx_max]
 
     if ShouldPlot is True:
         plt.figure()
         plt.subplot(2, 2, 1)
         plt.plot(TAsym, yAsym[0], label = 'approximate')
-        plt.plot(t_measured, generate_data("True Airspeed[knots]"), label = 'measured') #PLOTTING A DIFFERENT VALUE AS I DO NOT HAVE A FILE FOR SIDESLIP ANGLE
+        plt.plot(t_measured, calculateSideslip(), label = 'measured') #PLOTTING A DIFFERENT VALUE AS I DO NOT HAVE A FILE FOR SIDESLIP ANGLE
         plt.legend()
         plt.grid()
         plt.ylabel("sideslip")
         plt.subplot(2, 2, 2)
-        plt.plot(TAsym, yAsym[1], label = 'approximate')
+        plt.plot(TAsym, yAsym[2], label = 'approximate')
         plt.plot(t_measured, generate_data("Body Roll Rate[deg_p_s]"), label = 'measured')
         plt.legend()
         plt.grid()
         plt.ylabel("roll rate")
         plt.subplot(2, 2, 3)
-        plt.plot(TAsym, yAsym[2], label = 'approximate')
+        plt.plot(TAsym, yAsym[1], label = 'approximate')
         plt.plot(t_measured, generate_data("Roll Angle[deg]"), label = 'measured')
         plt.legend()
         plt.grid()
@@ -448,7 +476,7 @@ def PlotAsym(ShouldPlot, t_min, t_max):
 
 def PlotInputs(ShouldPlot, t_min, t_max):
 	t_measured = []
-	with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
+	with open(path + "UTC Seconds[sec].csv") as t_data:
 		i = 3  # time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
 		t_0 = 39568.5  # the initial time as seen in 'UTC Seconds [sec]'
 		for t_point in t_data.readlines():
@@ -460,27 +488,31 @@ def PlotInputs(ShouldPlot, t_min, t_max):
 
 	def generate_data(filename):
 		y = []
-		with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
+		with open(path + filename + ".csv") as file:
 			for data_point in file.readlines():
 				y.append(float(data_point.strip()))
+
+		print("DATA in: ", filename)
+		print("Max value: ", max(y[idx_min:idx_max]))
 		return y[idx_min:idx_max]
+
 	if ShouldPlot is True:
 		plt.figure()
 		plt.subplot(1, 3, 1)
-		plt.plot(TSym, Uin[:], label="numerical")
-		plt.plot(t_measured, generate_data('Deflection of elevator trim[deg]'), label ='actual')
+		plt.plot(TSym, np.degrees(Uin[:]), label="numerical")
+		plt.plot(t_measured, generate_data('Deflection_of_elevator[deg]'), label ='actual')
 		plt.legend()
 		plt.grid()
 		plt.ylabel('Elevator deflection [deg]')
 		plt.subplot(1, 3, 2)
-		plt.plot(TAsym, UinAsym[:,0], label='numerical')
+		plt.plot(TAsym, np.degrees(UinAsym[:,0]), label='numerical')
 		plt.plot(t_measured, generate_data('Deflection of aileron (right wing)[deg]'), label='actual')
 		plt.ylabel('Aileron deflection [deg]')
 		plt.legend()
 		plt.grid()
 		plt.ylabel('Aileron deflection (right wing)[deg]')
 		plt.subplot(1, 3, 3)
-		plt.plot(TAsym, UinAsym[:, 1], label='numerical')
+		plt.plot(TAsym, np.degrees(UinAsym[:, 1]), label='numerical')
 		plt.plot(t_measured, generate_data('Deflection of rudder[deg]'), label='actual')
 		plt.legend()
 		plt.grid()
