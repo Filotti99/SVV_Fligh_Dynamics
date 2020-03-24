@@ -338,7 +338,7 @@ def PrintEigvals(ShouldPrint):
         print("Eigenvalues symmetric case: \n", np.linalg.eigvals(systemSym.A))
         print("Eigenvalues asymmetric case: \n", np.linalg.eigvals(systemAsym.A))
 
-### “In the beginning the Universe was created. This had made many people very angry and has been widely regarded as a bad move.” - Douglas Adams, The Hitchhiker's Guide to the Galaxy###
+### “In the beginning the Universe was created. This has made many people very angry and has been widely regarded as a bad move.” - Douglas Adams, The Hitchhiker's Guide to the Galaxy###
 
 def PlotSym(ShouldPlot, t_min, t_max):
     '''
