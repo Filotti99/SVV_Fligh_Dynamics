@@ -65,7 +65,7 @@ dt = 0.1
 indexStart = int((1/dt)*tStart)
 indexEnd  = int((1/dt)*tEnd)
 
-path = r"C:\Users\Zach\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\"
+path = r"flight_data\matlab_files\\"
 print("Program initiated with Path: ", path)
 
 
