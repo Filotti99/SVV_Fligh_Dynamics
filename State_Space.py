@@ -59,8 +59,8 @@ m0 = 5832.05389
 
 
 
-tStart = minutes2Seconds(57)
-tEnd = minutes2Seconds(58)
+tStart = 0 #minutes2Seconds(58.5)
+tEnd = 12.5 #minutes2Seconds(59)
 dt = 0.1
 indexStart = int((1/dt)*tStart)
 indexEnd  = int((1/dt)*tEnd)
@@ -68,96 +68,106 @@ indexEnd  = int((1/dt)*tEnd)
 path = r"flight_data\matlab_files\\"
 print("Program initiated with Path: ", path)
 
+UseRealData = False
+if UseRealData:
+    alpha_0 = deg2rad(getInitialCondition(path, "Angle of attack[deg].csv", indexStart))
+    theta_0 = deg2rad(getInitialCondition(path, "Pitch Angle[deg].csv", indexStart))
+    q_0 = deg2rad(getInitialCondition(path, "Body Pitch Rate[deg_p_s].csv", indexStart)) * chord / V
+    beta_0 = 0
+    phi_0 = deg2rad(getInitialCondition(path, "Roll Angle[deg].csv", indexStart))
+    p_0 = deg2rad(getInitialCondition(path, "Body Roll Rate[deg_p_s].csv", indexStart)) * (span / (2 * V))
+    r_0 = deg2rad(getInitialCondition(path, "Body Yaw Rate[deg_p_s].csv", indexStart)) * (span / (2 * V))
+else:
+    alpha_0 = 0
+    theta_0 = 0
+    q_0 = 0
+    beta_0 = 0
+    phi_0 = 0
+    p_0 = 0
+    r_0 = 0
+
+if True:    #I'm just adding this if-statement so I can collapse the whole block with constant parameters - Max
+    span = 15.911
+    chord = 2.0569
+    S = 30.00
+    Aspect_ratio = span**2/S
 
 
-span = 15.911
-chord = 2.0569
-S = 30.00
-Aspect_ratio = span**2/S
+    fuelUsed = 0 #lbs2Kg(getInitialCondition(path,"calculated fuel used by fuel mass flow[lbs].csv",indexStart))
+    ####INPUTS, Change before use
+    V = 100 #kts2mps(getInitialCondition(path,"True Airspeed[knots].csv",indexStart))
+    u_0= V
+    mass = m0-fuelUsed
+    Weight = mass*g
+    T = celsius2K(getInitialCondition(path,"Static Air Temperature[deg C].csv",indexStart))
+    density  = rho_0*(T/T0)**(-(g/(a*R))-1)
+
+    D_b = span/V
+    D_c = chord / V
 
 
-fuelUsed = lbs2Kg(getInitialCondition(path,"calculated fuel used by fuel mass flow[lbs].csv",indexStart))
-####INPUTS, Change before use
-V = kts2mps(getInitialCondition(path,"True Airspeed[knots].csv",indexStart))
-u_0= V
-mass = m0-fuelUsed
-Weight = mass*g
-T = celsius2K(getInitialCondition(path,"Static Air Temperature[deg C].csv",indexStart))
-density  = rho_0*(T/T0)**(-(g/(a*R))-1)
+    #Flight test values
+    oswald_factor = 0.8797482096696121
+    CD_0 = 0.0297851584886189
+    CL_alpha = 4.345
 
-D_b = span/V
-D_c = chord / V
+    mu_b = mass / (density*S*span)
+    #print(mu_b)
+    mu_c = mass / (density * S * chord)
+    Kx = np.sqrt(0.019)
+    Ky = np.sqrt(1.25*1.114)
+    Kz = np.sqrt(0.042)
+    Kxz = 0.002
 
+    CL = 2*Weight/(density*V**2*S)
+    #print(CL)
+    CD = CD_0 + ((CL_alpha*alpha_0)**2/(np.pi*Aspect_ratio*oswald_factor))
 
-#Flight test values
-oswald_factor = 0.8797482096696121
-CD_0 = 0.0297851584886189
-CL_alpha = 4.345
-alpha_0 = deg2rad(getInitialCondition(path,"Angle of attack[deg].csv",indexStart))
-theta_0 = deg2rad(getInitialCondition(path,"Pitch Angle[deg].csv",indexStart))
-q_0 = deg2rad(getInitialCondition(path,"Body Pitch Rate[deg_p_s].csv",indexStart))* chord/V
-beta_0 = 0
-phi_0 = deg2rad(getInitialCondition(path,"Roll Angle[deg].csv",indexStart))
-p_0 = deg2rad(getInitialCondition(path,"Body Roll Rate[deg_p_s].csv",indexStart))*(span/(2*V))
-r_0 = deg2rad(getInitialCondition(path,"Body Yaw Rate[deg_p_s].csv", indexStart))*(span/(2*V))
+    ### Stability Derivatives ###
+    Cx_0 = Weight * np.sin(theta_0)/(0.5*density*V**2*S)
+    Cx_q = -0.28170
+    Cx_u = -0.095
 
+    Cx_alpha = 0.47966
+    Cx_alpha_dot = 0.08330
+    Cx_delta_e = -0.03728
 
-mu_b = mass / (density*S*span)
-#print(mu_b)
-mu_c = mass / (density * S * chord)
-Kx = np.sqrt(0.019)
-Ky = np.sqrt(1.25*1.114)
-Kz = np.sqrt(0.042)
-Kxz = 0.002
+    Cy_beta = -0.75000
+    Cy_beta_dot = 0
+    Cy_p = -0.0304
+    Cy_r = 0.8495
+    Cy_delta_a = -0.0400
+    Cy_delta_r = 0.23
 
-CL = 2*Weight/(density*V**2*S)
-#print(CL)
-CD = CD_0 + ((CL_alpha*alpha_0)**2/(np.pi*Aspect_ratio*oswald_factor))
+    Cz_alpha = -5.74340
+    Cz_alpha_dot = -0.0035
+    Cz_0 = -Weight*np.cos(theta_0)/(0.5*density*V**2*S)
+    Cz_u = -0.37616
+    Cz_q = -5.66290
+    Cz_delta_e = -0.69612
 
-### Stability Derivatives ###
-Cx_0 = Weight * np.sin(theta_0)/(0.5*density*V**2*S)
-Cx_q = -0.28170
-Cx_u = -0.095
+    Cl_beta = -0.10260
+    Cl_p = -0.71085
+    Cl_r = 0.23760
+    Cl_delta_a = -0.23088
+    Cl_delta_r = 0.03440
 
-Cx_alpha = 0.47966
-Cx_alpha_dot = 0.08330
-Cx_delta_e = -0.03728
-
-Cy_beta = -0.75000
-Cy_beta_dot = 0
-Cy_p = -0.0304
-Cy_r = 0.8495
-Cy_delta_a = -0.0400
-Cy_delta_r = 0.23
-
-Cz_alpha = -5.74340
-Cz_alpha_dot = -0.0035
-Cz_0 = -Weight*np.cos(theta_0)/(0.5*density*V**2*S)
-Cz_u = -0.37616
-Cz_q = -5.66290
-Cz_delta_e = -0.69612
-
-Cl_beta = -0.10260
-Cl_p = -0.71085
-Cl_r = 0.23760
-Cl_delta_a = -0.23088
-Cl_delta_r = 0.03440
-
-Cn_beta = 0.1348
-Cn_beta_dot = 0
-Cn_p = -0.0602
-Cn_r = -0.2061
-Cn_delta_a = -0.0120
-Cn_delta_r = -0.0939
+    Cn_beta = 0.1348
+    Cn_beta_dot = 0
+    Cn_p = -0.0602
+    Cn_r = -0.2061
+    Cn_delta_a = -0.0120
+    Cn_delta_r = -0.0939
 
 
-#Flight test data used
-Cm_q = -8.79415
-Cm_u = 0.06990
-Cm_alpha = -0.550
-Cm_alpha_dot = 0.1780
-Cm_delta_e = -1.216
+    #Flight test data used
+    Cm_q = -8.79415
+    Cm_u = 0.06990
+    Cm_alpha = -0.550
+    Cm_alpha_dot = 0.1780
+    Cm_delta_e = -1.216
 
+if False:
 ### Equation of Motion Matrices - V1 (Outdated) ###
 #C1sym = np.matrix([[(-2*mu_c*chord)/(V**2),					0,								0,											0],
 #				   [0,										(Cz_alpha_dot-2*mu_c)*chord/V,		0,											0],
@@ -189,45 +199,47 @@ Cm_delta_e = -1.216
 #					[0,										0],
 #					[Cl_delta_a,							Cl_delta_r],
 #					[Cn_delta_a,							Cn_delta_r]])
+    pass
 
-### Equation of Motion Matrices - V2 ###
-C1sym = D_c*np.matrix([[-2*mu_c			,						0,								0,											0],
-                        [0,										(Cz_alpha_dot-2*mu_c),			0,											0],
-                        [0,										0,								-1		,									0],
-                        [0,										Cm_alpha_dot		,			0,											-2*mu_c*Ky**2]])
+if True:
+    ### Equation of Motion Matrices - V2 ###
+    C1sym = D_c*np.matrix([[-2*mu_c			,						0,								0,											0],
+                            [0,										(Cz_alpha_dot-2*mu_c),			0,											0],
+                            [0,										0,								-1		,									0],
+                            [0,										Cm_alpha_dot		,			0,											-2*mu_c*Ky**2]])
 
-C2sym = np.matrix([[Cx_u,									Cx_alpha,						Cz_0,										Cx_q],
-                   [Cz_u,									Cz_alpha,						-Cx_0,										Cz_q+2*mu_c],
-                   [0,										0,								0,											1],
-                   [Cm_u,									Cm_alpha,						0,											Cm_q]])
+    C2sym = np.matrix([[Cx_u,									Cx_alpha,						Cz_0,										Cx_q],
+                       [Cz_u,									Cz_alpha,						-Cx_0,										Cz_q+2*mu_c],
+                       [0,										0,								0,											1],
+                       [Cm_u,									Cm_alpha,						0,											Cm_q]])
 
-C3sym = np.matrix([[Cx_delta_e],
-                   [Cz_delta_e],
-                   [0],
-                   [Cm_delta_e]])
+    C3sym = np.matrix([[Cx_delta_e],
+                       [Cz_delta_e],
+                       [0],
+                       [Cm_delta_e]])
 
-C1asym = D_b* np.matrix([[(Cy_beta_dot-2*mu_b),					0,								0,											0],
-                        [0,										-0.5,							0,											0],
-                        [0,										0,								-4*mu_b*Kx**2,								4*mu_b*Kxz],
-                        [Cn_beta_dot,							0,								4*mu_b*Kxz,									-4*mu_b*Kz**2]])
+    C1asym = D_b* np.matrix([[(Cy_beta_dot-2*mu_b),					0,								0,											0],
+                            [0,										-0.5,							0,											0],
+                            [0,										0,								-4*mu_b*Kx**2,								4*mu_b*Kxz],
+                            [Cn_beta_dot,							0,								4*mu_b*Kxz,									-4*mu_b*Kz**2]])
 
-C2asym = np.matrix([[Cy_beta,								CL,								Cy_p,										Cy_r - 4*mu_b],
-                    [0,										0,								1,											0],
-                    [Cl_beta,								0,								Cl_p,										Cl_r],
-                    [Cn_beta,								0,								Cn_p,										Cn_r]])
+    C2asym = np.matrix([[Cy_beta,								CL,								Cy_p,										Cy_r - 4*mu_b],
+                        [0,										0,								1,											0],
+                        [Cl_beta,								0,								Cl_p,										Cl_r],
+                        [Cn_beta,								0,								Cn_p,										Cn_r]])
 
-C3asym = np.matrix([[-Cy_delta_a,							Cy_delta_r],
-                    [0,										0],
-                    [-Cl_delta_a,							Cl_delta_r],
-                    [-Cn_delta_a,							Cn_delta_r]])
+    C3asym = np.matrix([[-Cy_delta_a,							Cy_delta_r],
+                        [0,										0],
+                        [-Cl_delta_a,							Cl_delta_r],
+                        [-Cn_delta_a,							Cn_delta_r]])
 
-Asym = -np.linalg.inv(C1sym)*C2sym
-Bsym = -np.linalg.inv(C1sym)*C3sym
+    Asym = -np.linalg.inv(C1sym)*C2sym
+    Bsym = -np.linalg.inv(C1sym)*C3sym
 
 
-Aasym = -np.linalg.inv(C1asym)*C2asym
-# Aasym[0] = [0,0,0,2/D_b]
-Basym = -np.linalg.inv(C1asym)*C3asym
+    Aasym = -np.linalg.inv(C1asym)*C2asym
+    # Aasym[0] = [0,0,0,2/D_b]
+    Basym = -np.linalg.inv(C1asym)*C3asym
 
 
 def PrintAB(ShouldPrint):
@@ -284,11 +296,11 @@ systemSym = ml.ss(Asym, Bsym, Csym, Dsym)
 systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
 
 Tin = np.arange(0,tEnd-tStart,0.1)
-#Uin = np.zeros_like(Tin)
-#Uin[0:100] = np.radians(10)
+Uin = np.zeros_like(Tin)
+Uin[0:100] = -0.005
 
 
-Uin = deg2rad(getData(path,"Deflection_of_elevator[deg].csv",indexStart,indexEnd))
+#Uin = deg2rad(getData(path,"Deflection_of_elevator[deg].csv",indexStart,indexEnd))
 #Uin = Uin - Uin[0]
 #print(Uin)
 
@@ -311,9 +323,9 @@ ySym[3] = ((ySym[3]*(u_0 / chord))+q_0)*180/np.pi
 Uaileron = deg2rad(getData(path,"Deflection of aileron (right wing)[deg].csv",indexStart,indexEnd))
 Urudder = deg2rad(getData(path,"Deflection of rudder[deg].csv",indexStart,indexEnd))
 UinAsym = np.zeros((len(Urudder),2))
-UinAsym[:,0] = Uaileron
-UinAsym[:,1] = Urudder
-
+UinAsym = np.zeros((indexEnd-indexStart, 2))
+#UinAsym[:,0] = Uaileron
+UinAsym[0:10,1] = np.radians(-10) #Urudder
 #UinAsym = np.zeros((indexEnd-indexStart,2))
 #UinAsym[:5,0] = np.radians(5)
 
@@ -323,7 +335,6 @@ TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(Uin
 yAsym[0] = np.degrees((yAsym[0]+beta_0))
 yAsym[1] = np.degrees((yAsym[1]+phi_0))
 yAsym[2] = np.degrees((yAsym[2] * ((2*u_0)/span))+(p_0*2*u_0)/span)
-print(r_0)
 yAsym[3] = np.degrees((yAsym[3] * ((2*u_0)/span))+(r_0*2*u_0)/span)
 
 
@@ -369,28 +380,32 @@ def PlotSym(ShouldPlot, t_min, t_max):
         plt.figure()
         plt.subplot(2, 2, 1)
         plt.plot(TSym, ySym[0], label = 'approximate')
-        plt.plot(t_measured, generate_data("True Airspeed[knots]"), label = 'measured')
-        plt.legend()
+        #plt.plot(t_measured, generate_data("True Airspeed[knots]"), label = 'measured')
+        #plt.legend()
         plt.grid()
-        plt.ylabel("u")
+        plt.ylabel("True Airspeed [m/s]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
         plt.subplot(2, 2, 2)
         plt.plot(TSym, ySym[1], label = 'approximate')
-        plt.plot(t_measured, generate_data("Angle of attack[deg]"), label = 'measured')
-        plt.legend()
+        #plt.plot(t_measured, generate_data("Angle of attack[deg]"), label = 'measured')
+        #plt.legend()
         plt.grid()
-        plt.ylabel("alpha")
+        plt.ylabel("Angle of Attack [deg]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
         plt.subplot(2, 2, 3)
         plt.plot(TSym, ySym[2], label = 'approximate')
-        plt.plot(t_measured, generate_data("Pitch Angle[deg]"), label = 'measured')
-        plt.legend()
+        #plt.plot(t_measured, generate_data("Pitch Angle[deg]"), label = 'measured')
+        #plt.legend()
         plt.grid()
-        plt.ylabel("theta")
+        plt.ylabel("Pitch Angle [deg]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
         plt.subplot(2, 2, 4)
         plt.plot(TSym, ySym[3], label = 'approximate')
-        plt.plot(t_measured, generate_data("Body Pitch Rate[deg_p_s]"), label = 'measured')
+        #plt.plot(t_measured, generate_data("Body Pitch Rate[deg_p_s]"), label = 'measured')
         plt.legend()
         plt.grid()
-        plt.ylabel("q")
+        plt.ylabel("Pitch Rate [deg/s]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
 
 
 def PlotAsym(ShouldPlot, t_min, t_max):
@@ -424,55 +439,32 @@ def PlotAsym(ShouldPlot, t_min, t_max):
         plt.figure()
         plt.subplot(2, 2, 1)
         plt.plot(TAsym, yAsym[0], label = 'approximate')
-        plt.plot(t_measured, calculateSideslip(), label = 'measured') #PLOTTING A DIFFERENT VALUE AS I DO NOT HAVE A FILE FOR SIDESLIP ANGLE
-        plt.legend()
+        #plt.plot(t_measured, calculateSideslip(), label = 'measured') #PLOTTING A DIFFERENT VALUE AS I DO NOT HAVE A FILE FOR SIDESLIP ANGLE
+        #plt.legend()
         plt.grid()
-        plt.ylabel("sideslip")
+        plt.ylabel("Sideslip Angle [deg]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
         plt.subplot(2, 2, 2)
         plt.plot(TAsym, yAsym[2], label = 'approximate')
-        plt.plot(t_measured, generate_data("Body Roll Rate[deg_p_s]"), label = 'measured')
-        plt.legend()
+        #plt.plot(t_measured, generate_data("Body Roll Rate[deg_p_s]"), label = 'measured')
+        #plt.legend()
         plt.grid()
-        plt.ylabel("roll rate")
+        plt.ylabel("Roll Rate [deg/s]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
         plt.subplot(2, 2, 3)
         plt.plot(TAsym, yAsym[1], label = 'approximate')
-        plt.plot(t_measured, generate_data("Roll Angle[deg]"), label = 'measured')
-        plt.legend()
+        #plt.plot(t_measured, generate_data("Roll Angle[deg]"), label = 'measured')
+        #plt.legend()
         plt.grid()
-        plt.ylabel("roll angle")
+        plt.ylabel("Roll Angle [deg]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
         plt.subplot(2, 2, 4)
         plt.plot(TAsym, yAsym[3], label = 'approximate')
-        plt.plot(t_measured, generate_data("Body Yaw Rate[deg_p_s]"), label = 'measured')
-        plt.legend()
+        #plt.plot(t_measured, generate_data("Body Yaw Rate[deg_p_s]"), label = 'measured')
+        #plt.legend()
         plt.grid()
-        plt.ylabel("yaw rate")
-
-# def PlotFlightData(t_min, t_max, *filenames):
-#     t = []
-#     with open(r"flight_data\matlab_files\UTC Seconds[sec].csv") as t_data:
-#         i = 3            #time measurements in 'UTC Seconds [sec]' start at xxx.5 secs
-#         t_0 = 39568.5    #the initial time as seen in 'UTC Seconds [sec]'
-#         for t_point in t_data.readlines():
-#             t.append(float(t_point.strip()) - t_0 - t_min/10 + (i%10)/10)
-#             i += 1
-#             #print(t[-1])
-#
-#     size1 = math.ceil(math.sqrt(len(filenames)))
-#     size2 = round(math.sqrt(len(filenames)))
-#     index = 0
-#     plt.figure()
-#     for filename in filenames:
-#         index += 1
-#         with open(r"flight_data\matlab_files\\" + filename + ".csv") as file:
-#             y = []
-#             for data_point in file.readlines():
-#                 y.append(float(data_point.strip()))
-#             plt.subplot(size1, size2, index)
-#             plt.grid(True)
-#             plt.plot(t[t_min:t_max], y[t_min:t_max])
-#             plt.ylabel(filename)
-#             plt.xlabel('Time Since Begin Observation [sec]')
-#     #plt.show()
+        plt.ylabel("Yaw Rate [deg/s]")
+        plt.xlabel("Time since Start Manoeuvre [s]")
 
 def PlotInputs(ShouldPlot, t_min, t_max):
 	t_measured = []
@@ -520,10 +512,10 @@ def PlotInputs(ShouldPlot, t_min, t_max):
 #PlotFlightData(indexStart, indexEnd, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
 PrintAB(False)
 PrintStabilityDerivatives(False)
-PrintEigvals(False)
-PlotSym(True, tStart, tEnd)
+PrintEigvals(True)
+#PlotSym(True, tStart, tEnd)
 PlotAsym(True, tStart, tEnd)
-PlotInputs(True, tStart, tEnd)
+#PlotInputs(True, tStart, tEnd)
 
 def ShortPeriodOscillation():
     print("Short Period Oscillation")
