@@ -1,7 +1,7 @@
 # Flight Dynamics Assignment
 
 ## Deliverables
-  - [x] A calculation of the current mass and center of gravity location of the aircraft for each measurement point
+  - [] A calculation of the current mass and center of gravity location of the aircraft for each measurement point
   - [x] A completed mass and balance form.
   - [ ] The equilibrium equations for the horizontal, stationary and symmetric flight. Clearly state the assumptions used, and discuss (if possible) their effect on the results.
   - [x] Plots of C_L − C_D ,and C_L − α , labelled with aircraft configuration, Mach number range, and Reynolds number range.
