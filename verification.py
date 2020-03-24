@@ -22,19 +22,6 @@ def verify(f, inputs:np.ndarray, predicted_output, err: float, perc: bool):
 if __name__ == '__main__':
     plt.close('all')
     #meas_mat = np.array([[0,0,0,10000,100, 268.338, 0]])
-<<<<<<< HEAD
-    inputs = np.array([[np.array([[0,0,0,5000,100, 255.65, 0]]), True, False, True],
-                       [np.array([[0,0,0,1000,100, 281.65, 0]]), True, False, True],
-                       [np.array([[0,0,0,0,100, 288.15, 0]]), True, False, True],
-                       [np.array([[0,0,0,1000,200, 281.65, 0]]), True, False, True],
-                       [np.array([[0,0,0,5000,100, 255.65, 0]]), True, False, False],
-                       [np.array([[0,0,0,1000,100, 281.65, 0]]), True, False, False],
-                       [np.array([[0,0,0,0,100, 288.15, 0]]), True, False, False],
-                       [np.array([[0,0,0,1000,200, 281.65, 0]]), True, False, False],])
-    predicted_output = np.array([[127.843],[104.836],[100],[208.92],[99.102],[99.868],[100],[199.019]])
-    for i,item in enumerate(inputs):
-        verify(V_e_red, item, predicted_output[i] , err = 1e-2, perc = True)
-=======
     #V_e_red
 #    inputs = np.array([[np.array([[0,0,0,5000,100, 255.65, 0]]), True, False, True],
 #                       [np.array([[0,0,0,1000,100, 281.65, 0]]), True, False, True],
@@ -54,7 +41,7 @@ if __name__ == '__main__':
         print(inputs[i],kts2mps(inputs[i]),predicted[i],almost_equal_perc(kts2mps(inputs[i]),predicted[i],0.1,True))
     print(inputs[-1],kts2mps(inputs[-1]),predicted[-1],almost_equal_abs(kts2mps(inputs[-1]),predicted[-1],1e-5,True))
     print()
-    
+
     #deg2rad
     print("deg2rad")
     inputs = [180,-180,310,-27.212,360,0]
@@ -63,7 +50,7 @@ if __name__ == '__main__':
         print(inputs[i],deg2rad(inputs[i]),predicted[i],almost_equal_perc(deg2rad(inputs[i]),predicted[i],0.1,True))
     print(inputs[-1],deg2rad(inputs[-1]),predicted[-1],almost_equal_abs(deg2rad(inputs[-1]),predicted[-1],1e-5,True))
     print()
-    
+
     #lbs2Kg
     print("lbs2Kg")
     f = lbs2Kg
@@ -73,7 +60,7 @@ if __name__ == '__main__':
         print(inputs[i],f(inputs[i]),predicted[i],almost_equal_perc(f(inputs[i]),predicted[i],0.1,True))
     print(inputs[-1],f(inputs[-1]),predicted[-1],almost_equal_abs(f(inputs[-1]),predicted[-1],1e-5,True))
     print()
-    
+
     #celsius2K
     print("celsius2K")
     f = celsius2K
@@ -83,7 +70,7 @@ if __name__ == '__main__':
         print(inputs[i],f(inputs[i]),predicted[i],almost_equal_perc(f(inputs[i]),predicted[i],0.1,True))
     print(inputs[-1],f(inputs[-1]),predicted[-1],almost_equal_abs(f(inputs[-1]),predicted[-1],1e-5,True))
     print()
-    
+
     #minutes2Seconds
     print("minutes2Seconds")
     f = minutes2Seconds
@@ -93,5 +80,3 @@ if __name__ == '__main__':
         print(inputs[i],f(inputs[i]),predicted[i],almost_equal_perc(f(inputs[i]),predicted[i],0.1,True))
     print(inputs[-1],f(inputs[-1]),predicted[-1],almost_equal_abs(f(inputs[-1]),predicted[-1],1e-5,True))
     print()
-    
->>>>>>> f6c7bdb002332a4e3daa849856c0a2365abf7fdd
