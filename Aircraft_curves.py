@@ -376,5 +376,4 @@ if __name__ == '__main__':
     
 
     # Functions that still require unit tests
-    # V_e_red
     # de_red
