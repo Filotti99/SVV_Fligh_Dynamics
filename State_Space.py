@@ -5,62 +5,60 @@ import matplotlib.pyplot as plt
 import cmath
 import math
 
+if True:
+    #Unit conversions
+    def kts2mps(vInKts):
+        return 0.514444 * vInKts
 
-#Unit conversions
-def kts2mps(vInKts):
-    return 0.514444 * vInKts
+    def deg2rad(angleInDeg):
+        return np.radians(angleInDeg)
 
-def deg2rad(angleInDeg):
-    return np.radians(angleInDeg)
+    def lbs2Kg(weightInLbs):
+        return 0.453592 * weightInLbs
 
-def lbs2Kg(weightInLbs):
-    return 0.453592 * weightInLbs
+    def celsius2K(tempInCelsius):
+        return tempInCelsius + 273.15
 
-def celsius2K(tempInCelsius):
-    return tempInCelsius + 273.15
+    def getInitialCondition(path,fileName,index):
+        file = open(path+fileName)
+        lines = file.readlines()
+        file.close()
+        data = np.genfromtxt(lines)
+        return data[index]
 
-def getInitialCondition(path,fileName,index):
-    file = open(path+fileName)
-    lines = file.readlines()
-    file.close()
-    data = np.genfromtxt(lines)
-    return data[index]
+    def getData(path,fileName,startIndex,endIndex):
+        file = open(path+fileName)
+        lines = file.readlines()
+        file.close()
+        data = np.genfromtxt(lines)
+        return data[startIndex:endIndex]
 
-def getData(path,fileName,startIndex,endIndex):
-    file = open(path+fileName)
-    lines = file.readlines()
-    file.close()
-    data = np.genfromtxt(lines)
-    return data[startIndex:endIndex]
+    def minutes2Seconds(minutes):
+        return 60 * minutes
 
-def minutes2Seconds(minutes):
-    return 60 * minutes
+    def calculateSideslip():
+            file = open(path+ "Body Yaw Rate[deg_p_s].csv")
+            lines = file.readlines()
+            file.close()
 
-def calculateSideslip():
-		file = open(path+ "Body Yaw Rate[deg_p_s].csv")
-		lines = file.readlines()
-		file.close()
+            yawRates = np.genfromtxt(lines)[indexStart:indexEnd]
+            sideslip = [beta_0]
+            print(sideslip)
+            for i in range(1,len(yawRates)):
+                sideslip.append(yawRates[i]*dt + sideslip[-1])
 
-		yawRates = np.genfromtxt(lines)[indexStart:indexEnd]
-		sideslip = [beta_0]
-		print(sideslip)
-		for i in range(1,len(yawRates)):
-			sideslip.append(yawRates[i]*dt + sideslip[-1])
+            return np.array(sideslip)
 
-		return np.array(sideslip)
-
-#Standard atmosphere
-g = 9.80665
-T0 = 288.15
-a = -0.0065
-rho_0 = 1.225
-R = 287
-m0 = 5832.05389
-
-
+    #Standard atmosphere
+    g = 9.80665
+    T0 = 288.15
+    a = -0.0065
+    rho_0 = 1.225
+    R = 287
+    m0 = 5832.05389
 
 tStart = 0 #minutes2Seconds(58.5)
-tEnd = 12.5 #minutes2Seconds(59)
+tEnd = 25 #minutes2Seconds(59)
 dt = 0.1
 indexStart = int((1/dt)*tStart)
 indexEnd  = int((1/dt)*tEnd)
@@ -86,6 +84,7 @@ else:
     p_0 = 0
     r_0 = 0
 
+#Initial conditions and parameters
 if True:    #I'm just adding this if-statement so I can collapse the whole block with constant parameters - Max
     span = 15.911
     chord = 2.0569
@@ -167,6 +166,7 @@ if True:    #I'm just adding this if-statement so I can collapse the whole block
     Cm_alpha_dot = 0.1780
     Cm_delta_e = -1.216
 
+#Old EoM Matrices
 if False:
 ### Equation of Motion Matrices - V1 (Outdated) ###
 #C1sym = np.matrix([[(-2*mu_c*chord)/(V**2),					0,								0,											0],
@@ -201,7 +201,8 @@ if False:
 #					[Cn_delta_a,							Cn_delta_r]])
     pass
 
-if True:
+#EoM Matrices
+if True:    #EoM Matrices
     ### Equation of Motion Matrices - V2 ###
     C1sym = D_c*np.matrix([[-2*mu_c			,						0,								0,											0],
                             [0,										(Cz_alpha_dot-2*mu_c),			0,											0],
@@ -239,8 +240,7 @@ if True:
 
     Aasym = -np.linalg.inv(C1asym)*C2asym
     # Aasym[0] = [0,0,0,2/D_b]
-    Basym = -np.linalg.inv(C1asym)*C3asym
-
+    Basym = -np.linalg.inv(C1asym)*C3asym   #E  #
 
 def PrintAB(ShouldPrint):
     '''
@@ -297,7 +297,7 @@ systemAsym = ml.ss(Aasym, Basym, Casym, Dasym)
 
 Tin = np.arange(0,tEnd-tStart,0.1)
 Uin = np.zeros_like(Tin)
-Uin[0:100] = -0.005
+#Uin[0:30] = np.radians(5)
 
 
 #Uin = deg2rad(getData(path,"Deflection_of_elevator[deg].csv",indexStart,indexEnd))
@@ -322,16 +322,27 @@ ySym[3] = ((ySym[3]*(u_0 / chord))+q_0)*180/np.pi
 
 Uaileron = deg2rad(getData(path,"Deflection of aileron (right wing)[deg].csv",indexStart,indexEnd))
 Urudder = deg2rad(getData(path,"Deflection of rudder[deg].csv",indexStart,indexEnd))
-UinAsym = np.zeros((len(Urudder),2))
 UinAsym = np.zeros((indexEnd-indexStart, 2))
-#UinAsym[:,0] = Uaileron
-UinAsym[0:10,1] = np.radians(-10) #Urudder
-#UinAsym = np.zeros((indexEnd-indexStart,2))
-#UinAsym[:5,0] = np.radians(5)
+UinAsym[0:10,1] = np.radians(-10)
+
+#This is only for the Damped Dutch Roll Case.
+def DutchRollYawDamped():
+    UDDR = np.array([[np.radians(-10)]*10, [0,0,0,0,0,0,0,0,0,0]])
+    TDDR = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+    for index in range(indexStart, indexEnd):
+        TDDR, yDDR, xDDR = c.forced_response(systemAsym, TDDR, UDDR, X0 = [0,0,0,0])
+        np.hstack([UDDR, np.array([[-0.2*yDDR[0,-1]], [0]])])
+        np.hstack([TDDR, np.array([float(TDDR[-1]) + 0.1])])
+        if index +1 >= indexEnd:
+            return TDDR, yDDR, xDDR
 
 
-TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(UinAsym),X0=[0,0,0,0])
 
+#TAsym, yAsym, xOutAsym = c.forced_response(systemAsym,T = Tin,U=np.transpose(UinAsym),X0=[0,0,0,0])
+TAsym, yAsym, xOutAsym = DutchRollYawDamped()
+print('TAsym', TAsym)
+print('yASym', yAsym)
+print('xOutAsym', xOutAsym)
 yAsym[0] = np.degrees((yAsym[0]+beta_0))
 yAsym[1] = np.degrees((yAsym[1]+phi_0))
 yAsym[2] = np.degrees((yAsym[2] * ((2*u_0)/span))+(p_0*2*u_0)/span)
@@ -406,7 +417,6 @@ def PlotSym(ShouldPlot, t_min, t_max):
         plt.grid()
         plt.ylabel("Pitch Rate [deg/s]")
         plt.xlabel("Time since Start Manoeuvre [s]")
-
 
 def PlotAsym(ShouldPlot, t_min, t_max):
     '''
@@ -513,9 +523,9 @@ def PlotInputs(ShouldPlot, t_min, t_max):
 PrintAB(False)
 PrintStabilityDerivatives(False)
 PrintEigvals(True)
-#PlotSym(True, tStart, tEnd)
+PlotSym(True, tStart, tEnd)
 PlotAsym(True, tStart, tEnd)
-#PlotInputs(True, tStart, tEnd)
+PlotInputs(True, tStart, tEnd)
 
 def ShortPeriodOscillation():
     print("Short Period Oscillation")
