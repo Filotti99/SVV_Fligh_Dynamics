@@ -158,10 +158,12 @@ def drag_polar(measurement_matrix, reality:bool):
     C_D_calculated = []
     C_D_calculated_nom = []
     CL2_array = []
+    error = []
     for i in range(len(C_L_array)):
         CL2_array.append(C_L_array[i]**2)
         C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
         C_D_calculated_nom.append(CD0_nom + C_L_array[i]**2 / (math.pi*inputs.AR*e_nom))
+        error.append(almost_equal_perc(C_D_calculated[i], C_D_calculated_nom.append[i], 500, True))
 
     plt.figure()
     plt.plot(C_L_array, C_D_array, label='measured')
@@ -330,8 +332,16 @@ if __name__ == '__main__':
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
     y = [7859.82/(0.5*1.225*100*100*30), 6066.2/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        print(calc_CD_curve(x, False), y, almost_equal_perc(calc_CD_curve(x, False)[2][i], y[i], 0.1, True))
-
+        calc_CD_curve(x, False), y, almost_equal_perc(calc_CD_curve(x, False)[2][i], y[i], 0.1, True)
+    
+    """
+    calcCD_curve Test 2
+    Checks e and CD0 for flight test data
+    """
+    e,CD0,CD_array = calc_CD_curve(inputs.measurement_matrix_real,True)
+    print(almost_equal_perc(e, 0.8, 10, True))
+    print(almost_equal_perc(CD0, 0.04, 35, True))
+    
     """
     elevator_alpha Test 1
     Calculates whether the alpha array is ever increasing
