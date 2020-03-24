@@ -38,7 +38,7 @@ def get_Thrust(reality:bool, nominal:bool, trim:bool):
     if nominal:
         fname += "_nominal"
     fname += ".dat"
-
+    
     Thrust_matrix = []
     for row in np.genfromtxt(fname):
         Thrust_matrix.append(sum(row))
@@ -158,10 +158,12 @@ def drag_polar(measurement_matrix, reality:bool):
     C_D_calculated = []
     C_D_calculated_nom = []
     CL2_array = []
+    error = []
     for i in range(len(C_L_array)):
         CL2_array.append(C_L_array[i]**2)
         C_D_calculated.append(CD0 + C_L_array[i]**2 / (math.pi*inputs.AR*e))
         C_D_calculated_nom.append(CD0_nom + C_L_array[i]**2 / (math.pi*inputs.AR*e_nom))
+        error.append(almost_equal_perc(C_D_calculated[i], C_D_calculated_nom[i], 500, True))
 
     plt.figure()
     plt.plot(C_L_array, C_D_array, label='measured')
@@ -181,6 +183,20 @@ def drag_polar(measurement_matrix, reality:bool):
     plt.xlabel('CL^2')
     plt.ylabel('CD')
     plt.legend()
+    plt.show()
+    
+    fig, ax1 = plt.subplots()
+    ax1.set_xlabel('CL')
+    ax1.set_ylabel('CD', color='blue')
+    ax1.plot(C_L_array, C_D_calculated, color='blue', label='linear regression')
+    ax1.plot(C_L_array, C_D_calculated_nom, color='green', label='theoretical values')
+    ax1.tick_params(axis='y', labelcolor='green')
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    ax2.set_ylabel('% error', color='red')  # we already handled the x-label with ax1
+    ax2.plot(C_L_array, error, color='red', label='% error')
+    ax2.tick_params(axis='y', labelcolor='red')
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    fig.legend()
     plt.show()
     return C_L_array, C_D_array
 
@@ -330,8 +346,16 @@ if __name__ == '__main__':
     x = np.array([[0,0,0,0,100,0,0,0,0,288.15,1000], [0,0,0,0,50,2,0,0,0,288.15,10000]])
     y = [7859.82/(0.5*1.225*100*100*30), 6066.2/(0.5*1.225*50*50*30)]
     for i in range(len(x)):
-        print(calc_CD_curve(x, False), y, almost_equal_perc(calc_CD_curve(x, False)[2][i], y[i], 0.1, True))
-
+        calc_CD_curve(x, False)[2][i], y[i], almost_equal_perc(calc_CD_curve(x, False)[2][i], y[i], 0.1, True)
+    
+    """
+    calcCD_curve Test 2
+    Checks e and CD0 for flight test data
+    """
+    e,CD0,CD_array = calc_CD_curve(inputs.measurement_matrix_real,True)
+    almost_equal_perc(e, 0.8, 10, True)
+    almost_equal_abs(CD0, 0.04, 35, True)
+    
     """
     elevator_alpha Test 1
     Calculates whether the alpha array is ever increasing
@@ -339,12 +363,17 @@ if __name__ == '__main__':
     x, y = elevator_curve_alpha(inputs.measurement_matrix)
     for i in range(1, len(x)):
         assert(x[i]-x[i-1] > 0)
+        
+    """
+    calc_Tc Test 1
+    Calculates Tc and Tcs for standard values
+    """
+    x = np.array([[0,0,0,0,100,0,0,0,0,288.15,0],[0,0,0,0,50,0,0,0,0,288.15,0]])
+    y = [7859.82/(0.5*1.225*100*100*0.68*0.68), 6066.2/(0.5*1.225*50*50*0.68*0.68)]
+    for i in range(len(x)):
+        print(calc_Tc(x,False,False,False)[i], y[i], almost_equal_perc(calc_Tc(x,False,False,False)[i], y[i], 0.1, True))
+    
+    
 
     # Functions that still require unit tests
-    # calcTc
-    # calcW !not used!
-    # V_e_red
     # de_red
-    # drag_polar (@Zach once the least squares solution is fixed)
-    # red_elevator_curve !not sure if it needs verifcation, it litterally just plots...!
-    # red_force_curve !not sure if it needs verifcation, it litterally just plots...!

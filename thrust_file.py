@@ -77,7 +77,7 @@ thrust_trim_matrix_real = np.transpose(np.array([inputs.trim_matrix_real[:,3], c
 thrust_trim_matrix_real_nominal = np.transpose(np.array([inputs.trim_matrix_real[:,3], calc_M(inputs.trim_matrix_real), calc_deltaT(inputs.trim_matrix_real), m_dot_fs_trim, m_dot_fs_trim ]))
 
 
-#for verification purposes
+#for verification purposes:
 testH = [0]*11
 testM = [0]*11
 testT = [0]*11
