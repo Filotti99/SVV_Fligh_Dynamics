@@ -21,9 +21,11 @@ if __name__ == '__main__':
     inputs = np.array([[np.array([[0,0,0,5000,100, 255.65, 0]]), True, False, True],
                        [np.array([[0,0,0,1000,100, 281.65, 0]]), True, False, True],
                        [np.array([[0,0,0,0,100, 288.15, 0]]), True, False, True],
+                       [np.array([[0,0,0,1000,200, 281.65, 0]]), True, False, True],
                        [np.array([[0,0,0,5000,100, 255.65, 0]]), True, False, False],
                        [np.array([[0,0,0,1000,100, 281.65, 0]]), True, False, False],
-                       [np.array([[0,0,0,0,100, 288.15, 0]]), True, False, False]])
-    predicted_output = np.array([[127.843],[104.836],[100],[99.102],[99.868],[100]])
+                       [np.array([[0,0,0,0,100, 288.15, 0]]), True, False, False],
+                       [np.array([[0,0,0,1000,200, 281.65, 0]]), True, False, False],])
+    predicted_output = np.array([[127.843],[104.836],[100],[208.92],[99.102],[99.868],[100],[199.019]])
     for i,item in enumerate(inputs):
-        verify(V_e_red, item, predicted_output[i] , err = 1e-3, perc = False)
+        verify(V_e_red, item, predicted_output[i] , err = 1e-2, perc = True)

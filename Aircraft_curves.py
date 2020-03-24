@@ -57,7 +57,7 @@ def calc_W(w_f0: float,meas_mat: np.ndarray, ref = True) -> np.ndarray:
     path = "cg_data/pass_w_ref.dat" if ref else "cg_data/pass_w.dat"
 
     w_pass = np.genfromtxt(path)*inputs.g_0
-    w_f = w_f0 - meas_mat[:,-2]
+    w_f = w_f0 - meas_mat[:,-3]*inputs.g_0
 
     return np.sum(w_pass)+ w_f + inputs.w_oew
 
@@ -70,7 +70,7 @@ def V_e_red(meas_matrix: np.ndarray, ref: bool, tilda = True, vtas = False):
     if vtas:
         #print(M*np.sqrt(inputs.gamma*inputs.R*T))
         return M*np.sqrt(inputs.gamma*inputs.R*T)
-    V   = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
+    V = M*np.sqrt(inputs.gamma*p/inputs.rho_0)
 
     w_f0 = 4050 if ref else 2640
     w_f0 *= inputs.lbs*inputs.g_0
