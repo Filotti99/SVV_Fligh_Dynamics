@@ -1,6 +1,6 @@
 import numpy as np
 import inspect
-from math import pi, sin, cos
+from math import pi, sin, cos, sqrt
 import matplotlib.pyplot as plt
 #import State_Space as SS
 from Aircraft_curves import almost_equal_perc, almost_equal_abs, V_e_red, de_red
@@ -106,18 +106,18 @@ if __name__ == '__main__':
 #        print(inputs[i],f(inputs[i]),predicted[i],almost_equal_perc(f(inputs[i]),predicted[i],0.1,True))
 #    print(inputs[-1],f(inputs[-1]),predicted[-1],almost_equal_abs(f(inputs[-1]),predicted[-1],1e-5,True))
 #    print()
-
-    #calculateSideslip
-    print('calculateSideslip')
-    tStart = 0
-    tEnd = 20
-    dt = 0.1
-    t = np.arange(tStart, tEnd, dt)
-    indexStart = int((1/dt)*tStart)
-    indexEnd  = int((1/dt)*tEnd)
-    path = r"flight_data\matlab_files\\"
-    beta_0 = 0
-    
+#
+#    #calculateSideslip
+#    print('calculateSideslip')
+#    tStart = 0
+#    tEnd = 20
+#    dt = 0.1
+#    t = np.arange(tStart, tEnd, dt)
+#    indexStart = int((1/dt)*tStart)
+#    indexEnd  = int((1/dt)*tEnd)
+#    path = r"flight_data\matlab_files\\"
+#    beta_0 = 0
+#    
 #    sideslip, yawrate = calculateSideslip()
 #    plt.figure()
 #    plt.plot(t,sideslip,color='blue',label='sideslip')
@@ -126,30 +126,48 @@ if __name__ == '__main__':
 #    plt.title('Sideslip and yawrate')
 #    plt.legend()
 #    plt.show()
+#    
+#    yaw_rate_test = []
+#    sideslip_true = []
+#    for i in range(len(t)):
+#        yaw_rate_test.append(cos(t[i]))
+#        sideslip_true.append(sin(t[i]))
+#    np.savetxt("yaw_rate_test.dat",yaw_rate_test)
+#    
+#    sideslip, yawrate = calculateSideslip_test()
+#    plt.figure()
+#    plt.plot(t,sideslip,color='blue',label='sideslip')
+#    plt.plot(t,yawrate,color='green',label='yawrate')
+#    plt.xlabel('Time [s]')
+#    plt.title('Sideslip and yawrate')
+#    plt.legend()
+#    plt.show()
+#    
+#    error = []
+#    for i in range(len(sideslip)):
+#        error.append(almost_equal_abs(sideslip[i],sideslip_true[i],1,True))
+#    plt.figure()
+#    plt.plot(t,error,color='red')
+#    plt.xlabel('Time [s]')
+#    plt.ylabel('Error')
+#    plt.title('Error of sideslip calculations')
+#    
+#    print(yawrate[np.argmax(sideslip)])
     
-    yaw_rate_test = []
-    sideslip_true = []
-    for i in range(len(t)):
-        yaw_rate_test.append(cos(t[i]))
-        sideslip_true.append(sin(t[i]))
-    np.savetxt("yaw_rate_test.dat",yaw_rate_test)
     
-    sideslip, yawrate = calculateSideslip_test()
-    plt.figure()
-    plt.plot(t,sideslip,color='blue',label='sideslip')
-    plt.plot(t,yawrate,color='green',label='yawrate')
-    plt.xlabel('Time [s]')
-    plt.title('Sideslip and yawrate')
-    plt.legend()
-    plt.show()
+    #eigenvalues
+    print('eigenvalues')
+    phugoid_measured_real = -0.0053
+    phugoid_model_real = -0.01045
+    phugoid_measured_im = 0.131
+    phugoid_model_im = 0.1457
+    print(almost_equal_perc(phugoid_model_real,phugoid_measured_real,100,True))
+    print(almost_equal_perc(phugoid_model_im,phugoid_measured_im,100,True))
     
-    error = []
-    for i in range(len(sideslip)):
-        error.append(almost_equal_abs(sideslip[i],sideslip_true[i],1,True))
-    plt.figure()
-    plt.plot(t,error,color='red')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Error')
-    plt.title('Error of sideslip calculations')
+    DR_measured_real = -0.182
+    DR_model_real = -0.441
+    DR_measured_im = 2.01
+    DR_model_im = 2.563
+    print(almost_equal_perc(DR_model_real,DR_measured_real,100,True))
+    print(almost_equal_perc(DR_model_im,DR_measured_im,100,True))
     
-    print(yawrate[np.argmax(sideslip)])
