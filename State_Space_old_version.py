@@ -67,13 +67,15 @@ m0 = 5832.05389
 
 
 tStart = minutes2Seconds(57)
-tEnd = minutes2Seconds(58)
+tEnd = minutes2Seconds(57.5)
 dt = 0.1
 indexStart = int((1/dt)*tStart)
 indexEnd  = int((1/dt)*tEnd)
 
 path = r"C:\Users\Zach\Documents\GitHub\SVV_Fligh_Dynamics\flight_data\matlab_files\\"
 print("Program initiated with Path: ", path)
+
+plt.close('all')
 
 
 
@@ -506,22 +508,22 @@ def PlotInputs(ShouldPlot, t_min, t_max):
 	if ShouldPlot is True:
 		plt.figure()
 		plt.subplot(1, 3, 1)
-		plt.plot(TSym, np.degrees(Uin[:]), label="numerical")
+		#plt.plot(TSym, np.degrees(Uin[:]), label="numerical")
 		plt.plot(t_measured, generate_data('Deflection_of_elevator[deg]'), label ='actual')
-		plt.legend()
+		#plt.legend()
 		plt.grid()
 		plt.ylabel('Elevator deflection [deg]')
 		plt.subplot(1, 3, 2)
-		plt.plot(TAsym, np.degrees(UinAsym[:,0]), label='numerical')
+		#plt.plot(TAsym, np.degrees(UinAsym[:,0]), label='numerical')
 		plt.plot(t_measured, generate_data('Deflection of aileron (right wing)[deg]'), label='actual')
-		plt.ylabel('Aileron deflection [deg]')
-		plt.legend()
+		#plt.legend()
 		plt.grid()
 		plt.ylabel('Aileron deflection (right wing)[deg]')
 		plt.subplot(1, 3, 3)
-		plt.plot(TAsym, np.degrees(UinAsym[:, 1]), label='numerical')
+		#plt.plot(TAsym, np.degrees(UinAsym[:, 1]), label='numerical')
 		plt.plot(t_measured, generate_data('Deflection of rudder[deg]'), label='actual')
-		plt.legend()
+		plt.ylabel('Rudder deflection [deg]')
+		#plt.legend()
 		plt.grid()
 
 #PlotFlightData(indexStart, indexEnd, 'True Airspeed[knots]', 'Angle of attack[deg]', 'Pitch Angle[deg]', 'Body Pitch Rate[deg_p_s]')
